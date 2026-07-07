@@ -3,7 +3,6 @@
 
   var currentScreen = 'player';
   var currentPlayerState = 'playing';
-  var cycleTimer = null;
   var mockData = null;
   var layerTimers = {};
 
@@ -98,7 +97,7 @@
     live: function () { PlayerUI.applyBufferingDemo(); },
     playing: function () { PlayerUI.applyPlayingDemo(); },
     paused: function () { PlayerUI.applyPausedDemo(); },
-    loading: function () { PlayerUI.applyBufferingDemo(); },
+    loading: function () { PlayerUI.applyRebufferDemo(); },
     error: function () {
       PlayerUI.showError('Нет каналов в тарифе');
     },
@@ -229,16 +228,6 @@
       PlayerUI.setProgress(percent, Math.floor(dur * percent / 100), dur);
     },
 
-    startNavCycle: function () {
-      var i = 0;
-      clearInterval(cycleTimer);
-      cycleTimer = setInterval(function () {
-        PlayerUI.applyPlayingDemo();
-        PlayerUI.setNavSelected(i);
-        i = (i + 1) % 9;
-      }, 600);
-    },
-
     fitPreviewScale: function () {
       var devH = document.documentElement.classList.contains('audit-mode') ? 0 : 96;
       var scale = Math.min(window.innerWidth / 1920, (window.innerHeight - devH) / 1080);
@@ -304,7 +293,6 @@
         if (e.target.closest('[data-action="epg-right"]')) AppPreview.setEpgFocus('programs');
         if (e.target.closest('[data-action="sepg-left"]')) AppPreview.sepgShift(-1);
         if (e.target.closest('[data-action="sepg-right"]')) AppPreview.sepgShift(1);
-        if (e.target.id === 'cycle-nav') AppPreview.startNavCycle();
       });
 
       var slider = byId('progress-slider');

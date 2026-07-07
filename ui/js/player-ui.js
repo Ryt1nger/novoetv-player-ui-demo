@@ -333,6 +333,13 @@
 
     applyBufferingDemo: function () {
       this.applyLiveDemo();
+    },
+
+    applyRebufferDemo: function () {
+      this.applyPlayingDemo();
+      this.setProgress(35, 525, 1500);
+      this.hideAspectPad();
+      this.showLoading(true);
     }
   };
 

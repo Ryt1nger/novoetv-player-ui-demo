@@ -101,20 +101,17 @@
     <button data-nav="6">epg</button>
     <button data-nav="7">menu</button>
     <button data-nav="8">info</button>
-    <button id="cycle-nav">cycle ▶</button>
     <label>|</label>
     <input type="range" id="progress-slider" min="0" max="100" value="0" style="width:100px" title="Прогресс">
   </div>
 
   <script src="../js/player-ui.js"></script>
   <script>
-    var cycleTimer = null;
-
     var STATES = {
       live: function () { PlayerUI.applyBufferingDemo(); },
       playing: function () { PlayerUI.applyPlayingDemo(); },
       paused: function () { PlayerUI.applyPausedDemo(); },
-      loading: function () { PlayerUI.applyBufferingDemo(); },
+      loading: function () { PlayerUI.applyRebufferDemo(); },
       error: function () {
         PlayerUI.showError('Нет каналов в тарифе');
       },
@@ -161,15 +158,6 @@
         document.querySelectorAll('[data-nav]').forEach(function (b) {
           b.classList.toggle('active', b === navBtn);
         });
-      }
-      if (e.target.id === 'cycle-nav') {
-        var i = 0;
-        clearInterval(cycleTimer);
-        cycleTimer = setInterval(function () {
-          PlayerUI.applyPlayingDemo();
-          PlayerUI.setNavSelected(i);
-          i = (i + 1) % 9;
-        }, 600);
       }
     });
 
