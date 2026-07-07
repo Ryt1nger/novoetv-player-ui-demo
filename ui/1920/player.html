@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>Player</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/player.css">
+  <style>
+    #dev-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+      background: rgba(0,0,0,.92); border-top: 1px solid #333;
+      padding: 8px 12px; font: 12px/1.4 system-ui, sans-serif;
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+      max-height: 80px; overflow-y: auto;
+    }
+    #dev-panel button { cursor: pointer; padding: 3px 8px; font-size: 11px; }
+    #dev-panel button.active { background: #18bbcc; color: #111; border-color: #18bbcc; }
+    #dev-panel label { color: #888; font-size: 11px; }
+    html.audit-mode #dev-panel { display: none; }
+    html.audit-mode.browser-preview #tv-viewport { bottom: 0; }
+  </style>
+  <script>
+    document.documentElement.classList.add('browser-preview');
+    if (new URLSearchParams(location.search).has('audit')) {
+      document.documentElement.classList.add('audit-mode');
+    }
+  </script>
+</head>
+<body class="tizen_tv dev-mode">
+
+  <div id="tv-viewport">
+  <div id="tv-stage">
+    <div id="aspect-bar" class="screen_pad preview-hidden"></div>
+    <div id="loading-bar" class="preview-hidden">
+      <img src="img/spinner.gif" width="102" height="102" alt="">
+    </div>
+    <div id="player-screen" class="screen">
+    <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden"></div>
+
+    <div id="tv-infobar" class="preview-hidden">
+      <div id="player-company-logo">
+        <img id="player-company-logo-img" src="../../mocks/company-logo-novoetv.png" alt="NOVOE TV">
+      </div>
+      <div id="block-tv-info">
+        <div id="navigation-splitter"></div>
+        <div id="navigation-panel">
+          <ul id="navigation-list"></ul>
+        </div>
+        <div id="infobar-common-info">
+          <div id="infobar-channel-icon">
+            <img id="player-channel-icon" src="no_logo.gif" alt="">
+          </div>
+          <div id="infobar-channel-number"></div>
+          <div id="infobar-channel-name"></div>
+          <div id="infobar-program-name"></div>
+          <div id="infobar-program-time"></div>
+          <div id="infobar-progress-info">
+            <div id="infobar-program-total"></div>
+            <div id="infobar-program-progress"></div>
+            <div id="infobar-program-pin"></div>
+          </div>
+          <div id="infobar-program-duration"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tv-fwdbar">
+      <div id="infobar-common-fwd">
+        <div id="infobar-program-name-fwd"></div>
+        <div id="infobar-program-time-fwd"></div>
+        <div id="infobar-progress-fwd">
+          <div id="infobar-program-total-fwd"></div>
+          <div id="infobar-program-progress-fwd"></div>
+          <div id="infobar-program-pin-fwd"></div>
+        </div>
+        <div id="infobar-program-duration-fwd"></div>
+      </div>
+    </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="dev-panel">
+    <label>Экран:</label>
+    <button data-state="live" class="active">Live+load</button>
+    <button data-state="playing">Playing</button>
+    <button data-state="paused">Paused</button>
+    <button data-state="loading">Loading</button>
+    <button data-state="error">Error</button>
+    <button data-state="vod">VOD</button>
+    <button data-state="fwd">Fwd bar</button>
+    <button data-state="fav">Fav ✓</button>
+    <button data-state="archive">Archive ctrls</button>
+    <label>| Nav:</label>
+    <button data-nav="0">♥</button>
+    <button data-nav="1">later</button>
+    <button data-nav="2">stop</button>
+    <button data-nav="4" class="active">pause</button>
+    <button data-nav="5">ch</button>
+    <button data-nav="6">epg</button>
+    <button data-nav="7">menu</button>
+    <button data-nav="8">info</button>
+    <button id="cycle-nav">cycle ▶</button>
+    <label>|</label>
+    <input type="range" id="progress-slider" min="0" max="100" value="0" style="width:100px" title="Прогресс">
+  </div>
+
+  <script src="../js/player-ui.js"></script>
+  <script>
+    var cycleTimer = null;
+
+    var STATES = {
+      live: function () { PlayerUI.applyLiveDemo(); },
+      playing: function () { PlayerUI.applyPlayingDemo(); },
+      paused: function () { PlayerUI.applyPausedDemo(); },
+      loading: function () {
+        PlayerUI.applyPlayingDemo();
+        PlayerUI.showLoading(true);
+      },
+      error: function () {
+        PlayerUI.showError('Нет каналов в тарифе');
+      },
+      vod: function () {
+        PlayerUI.applyPlayingDemo();
+        PlayerUI.setVodMode(true);
+      },
+      fwd: function () {
+        PlayerUI.applyPlayingDemo();
+        PlayerUI.showFwdBar(true);
+        PlayerUI.setProgress(50, 750, 1500);
+      },
+      fav: function () {
+        PlayerUI.applyPlayingDemo();
+        PlayerUI.setFavoritesMarked(true);
+      },
+      archive: function () {
+        PlayerUI.applyPlayingDemo();
+        PlayerUI.setArchiveControls();
+        PlayerUI.setChannel({
+          number: '013', name: 'NTV', icon: PlayerUI.DEMO_CHANNEL_ICON,
+          program_name: 'Сёстры, 1-2 серия', has_record: true
+        });
+      }
+    };
+
+    function setActiveState(btn) {
+      document.querySelectorAll('[data-state]').forEach(function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+    }
+
+    document.getElementById('dev-panel').addEventListener('click', function (e) {
+      var stateBtn = e.target.closest('[data-state]');
+      if (stateBtn && STATES[stateBtn.getAttribute('data-state')]) {
+        STATES[stateBtn.getAttribute('data-state')]();
+        setActiveState(stateBtn);
+      }
+      var navBtn = e.target.closest('[data-nav]');
+      if (navBtn) {
+        PlayerUI.setNavSelected(parseInt(navBtn.getAttribute('data-nav'), 10));
+        document.querySelectorAll('[data-nav]').forEach(function (b) {
+          b.classList.toggle('active', b === navBtn);
+        });
+      }
+      if (e.target.id === 'cycle-nav') {
+        var i = 0;
+        clearInterval(cycleTimer);
+        cycleTimer = setInterval(function () {
+          PlayerUI.applyPlayingDemo();
+          PlayerUI.setNavSelected(i);
+          i = (i + 1) % 9;
+        }, 600);
+      }
+    });
+
+    document.getElementById('progress-slider').addEventListener('input', function (e) {
+      var p = parseInt(e.target.value, 10);
+      var dur = 1500;
+      PlayerUI.setProgress(p, Math.floor(dur * p / 100), dur);
+    });
+
+    function fitPreviewScale() {
+      var devH = document.documentElement.classList.contains('audit-mode') ? 0 : 80;
+      var scale = Math.min(window.innerWidth / 1920, (window.innerHeight - devH) / 1080);
+      document.documentElement.style.setProperty('--preview-scale', String(scale));
+    }
+
+    window.addEventListener('resize', fitPreviewScale);
+    window.addEventListener('load', function () {
+      fitPreviewScale();
+      PlayerUI.applyLiveDemo();
+      document.getElementById('progress-slider').value = 0;
+      requestAnimationFrame(function () {
+        PlayerUI.setProgress(0.07, 1, 1500);
+      });
+    });
+  </script>
+</body>
+</html>

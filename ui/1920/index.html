@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>NovoeTV Player UI</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/preview-animations.css">
+  <style>
+    #mock-video-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background: #000 url('../../assets/img/back.jpg') center/cover no-repeat;
+    }
+    #preview-dim-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #preview-dim-overlay.preview-active {
+      visibility: visible;
+    }
+    #preview-dim-overlay.dim-sepg {
+      opacity: 1;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.45) 38%,
+        rgba(0, 0, 0, 0.12) 100%
+      );
+    }
+    #preview-dim-overlay.dim-epg {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.68);
+      backdrop-filter: blur(2px);
+    }
+    #player-screen { z-index: 10; background: transparent; }
+    #sepg-screen { z-index: 20; background: transparent; }
+    #epg-screen { z-index: 30; background: transparent; }
+    #loading-bar, #aspect-bar { z-index: 15; }
+
+    #dev-panel {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+      background: rgba(0,0,0,.92); border-top: 1px solid #333;
+      padding: 8px 12px; font: 12px/1.4 system-ui, sans-serif;
+    }
+    .dev-panel-row {
+      display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+      margin-bottom: 4px;
+    }
+    .dev-panel-row:last-child { margin-bottom: 0; }
+    #dev-panel button { cursor: pointer; padding: 3px 8px; font-size: 11px; }
+    #dev-panel button.active { background: #18bbcc; color: #111; border-color: #18bbcc; }
+    #dev-panel label { color: #888; font-size: 11px; }
+    html.audit-mode #dev-panel { display: none; }
+    html.audit-mode.browser-preview #tv-viewport { bottom: 0; }
+    html.audit-mode #preview-dim-overlay { transition: none; }
+  </style>
+  <script>
+    document.documentElement.classList.add('browser-preview', 'preview-animated');
+    if (new URLSearchParams(location.search).has('audit')) {
+      document.documentElement.classList.add('audit-mode');
+    }
+  </script>
+</head>
+<body class="tizen_tv dev-mode">
+
+  <div id="tv-viewport">
+  <div id="tv-stage">
+    <div id="mock-video-bg"></div>
+    <div id="preview-dim-overlay" aria-hidden="true"></div>
+
+    <div id="aspect-bar" class="screen_pad preview-hidden"></div>
+    <div id="loading-bar" class="preview-hidden">
+      <img src="img/spinner.gif" width="102" height="102" alt="">
+    </div>
+
+    <div id="player-screen" class="screen">
+      <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden"></div>
+
+      <div id="tv-infobar" class="preview-hidden">
+        <div id="player-company-logo">
+          <img id="player-company-logo-img" src="../../mocks/company-logo-novoetv.png" alt="NOVOE TV">
+        </div>
+        <div id="block-tv-info">
+          <div id="navigation-splitter"></div>
+          <div id="navigation-panel">
+            <ul id="navigation-list"></ul>
+          </div>
+          <div id="infobar-common-info">
+            <div id="infobar-channel-icon">
+              <img id="player-channel-icon" src="no_logo.gif" alt="">
+            </div>
+            <div id="infobar-channel-number"></div>
+            <div id="infobar-channel-name"></div>
+            <div id="infobar-program-name"></div>
+            <div id="infobar-program-time"></div>
+            <div id="infobar-progress-info">
+              <div id="infobar-program-total"></div>
+              <div id="infobar-program-progress"></div>
+              <div id="infobar-program-pin"></div>
+            </div>
+            <div id="infobar-program-duration"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tv-fwdbar">
+        <div id="infobar-common-fwd">
+          <div id="infobar-program-name-fwd"></div>
+          <div id="infobar-program-time-fwd"></div>
+          <div id="infobar-progress-fwd">
+            <div id="infobar-program-total-fwd"></div>
+            <div id="infobar-program-progress-fwd"></div>
+            <div id="infobar-program-pin-fwd"></div>
+          </div>
+          <div id="infobar-program-duration-fwd"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sepg-screen" class="screen preview-hidden">
+      <div id="playing-error-bar-sepg" class="playing-error-bar screen_pad preview-hidden"></div>
+
+      <div id="sepg-block-title"></div>
+      <div id="sepg-container">
+        <div class="left bottom sepg-arrow"><img id="sepg-left-arrow" src="img/nav_left.png" alt=""></div>
+        <ul id="sepg-menu-list" class="bottom">
+          <li id="sepg-channel-0"></li>
+          <li id="sepg-channel-1"></li>
+          <li id="sepg-channel-2"></li>
+        </ul>
+        <div class="right bottom sepg-arrow"><img id="sepg-right-arrow" src="img/nav_right.png" alt=""></div>
+      </div>
+
+      <div id="sepg-container-loading" class="preview-hidden">
+        <div class="left bottom sepg-arrow"><img src="img/nav_left.png" alt=""></div>
+        <ul class="bottom">
+          <li><div class="loading"><img src="img/loading_data.gif" width="30" alt=""></div></li>
+          <li><div class="loading"><img src="img/loading_data.gif" width="30" alt=""></div></li>
+          <li><div class="loading"><img src="img/loading_data.gif" width="30" alt=""></div></li>
+        </ul>
+        <div class="right bottom sepg-arrow"><img src="img/nav_right.png" alt=""></div>
+      </div>
+    </div>
+
+    <div id="epg-screen" class="screen preview-hidden">
+      <div class="screen-header">
+        <div class="header-logo"><img src="../../mocks/company-logo-novoetv.png" alt="NOVOE TV"></div>
+        <div class="header-time"></div>
+        <div class="header-date"></div>
+      </div>
+
+      <div class="screen-content epg-headers">
+        <div class="header" id="epg-category"></div>
+        <div class="header" id="epg-channel-name"></div>
+        <div class="header" id="epg-channel-description"></div>
+      </div>
+
+      <div class="screen-content">
+        <div class="list days">
+          <ul id="epg-days-list">
+            <li id="epgday0"></li>
+          </ul>
+        </div>
+
+        <div class="list epg">
+          <div id="epg-data-loading" class="data-loading preview-hidden"><img src="img/loading_data.gif" alt=""></div>
+          <div id="no-epg-message" class="no-content preview-hidden"></div>
+          <ul id="epg-list">
+            <li id="epg0"></li>
+          </ul>
+        </div>
+
+        <div class="list program-details">
+          <div id="program-data-loading" class="data-loading preview-hidden"><img src="img/loading_data.gif" alt=""></div>
+          <div id="program-data"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
+  <div id="dev-panel">
+    <div class="dev-panel-row">
+      <label>Экран:</label>
+      <button type="button" data-screen-tab="player" class="active">Player</button>
+      <button type="button" data-screen-tab="sepg">Mini-EPG overlay</button>
+      <button type="button" data-screen-tab="epg">Full EPG</button>
+    </div>
+
+    <div class="dev-panel-row" data-panel="player">
+      <label>Player:</label>
+      <button type="button" data-player-state="live">Live+load</button>
+      <button type="button" data-player-state="playing" class="active">Playing</button>
+      <button type="button" data-player-state="paused">Paused</button>
+      <button type="button" data-player-state="loading">Loading</button>
+      <button type="button" data-player-state="error">Error</button>
+      <button type="button" data-player-state="vod">VOD</button>
+      <button type="button" data-player-state="fwd">Fwd bar</button>
+      <button type="button" data-player-state="fav">Fav ✓</button>
+      <button type="button" data-player-state="archive">Archive</button>
+      <label>| Nav:</label>
+      <button type="button" data-nav-index="0">♥</button>
+      <button type="button" data-nav-index="4" class="active">pause</button>
+      <button type="button" data-nav-index="6">epg</button>
+      <button type="button" id="cycle-nav">cycle ▶</button>
+      <input type="range" id="progress-slider" min="0" max="100" value="50" style="width:90px" title="Прогресс">
+    </div>
+
+    <div class="dev-panel-row preview-hidden" data-panel="sepg">
+      <label>Mini-EPG:</label>
+      <button type="button" data-sepg-state="demo" class="active">3 карточки</button>
+      <button type="button" data-sepg-state="loading">Loading</button>
+      <button type="button" data-sepg-state="empty">Empty</button>
+      <button type="button" data-sepg-state="error">Stream error</button>
+      <button type="button" data-action="sepg-left">◀</button>
+      <button type="button" data-action="sepg-right">▶</button>
+    </div>
+
+    <div class="dev-panel-row preview-hidden" data-panel="epg">
+      <label>Full EPG:</label>
+      <button type="button" data-epg-state="demo" class="active">Normal</button>
+      <button type="button" data-epg-state="loading">Loading</button>
+      <button type="button" data-epg-state="empty">Empty</button>
+      <label>|</label>
+      <button type="button" data-epg-focus="days">← дни</button>
+      <button type="button" data-epg-focus="programs" class="active">программы →</button>
+      <button type="button" data-action="epg-up">▲</button>
+      <button type="button" data-action="epg-down">▼</button>
+    </div>
+  </div>
+
+  <script src="../js/player-ui.js"></script>
+  <script src="../js/sepg-ui.js"></script>
+  <script src="../js/epg-ui.js"></script>
+  <script src="../js/app-preview.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      AppPreview.init();
+    });
+  </script>
+</body>
+</html>

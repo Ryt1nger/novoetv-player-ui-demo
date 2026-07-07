@@ -1,0 +1,104 @@
+html.preview-animated.audit-mode *,
+html.preview-animated.audit-mode *::before,
+html.preview-animated.audit-mode *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+html.preview-animated {
+  --preview-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --preview-duration: 0.26s;
+}
+
+html.preview-animated #preview-dim-overlay {
+  transition: opacity 0.32s ease, visibility 0.32s ease;
+}
+
+html.preview-animated #mock-video-bg,
+html.preview-animated #player-screen,
+html.preview-animated #sepg-screen,
+html.preview-animated #epg-screen {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--preview-duration) ease,
+    visibility var(--preview-duration) ease,
+    transform calc(var(--preview-duration) + 0.06s) var(--preview-ease);
+}
+
+html.preview-animated #mock-video-bg.preview-active,
+html.preview-animated #player-screen.preview-active,
+html.preview-animated #sepg-screen.preview-active,
+html.preview-animated #epg-screen.preview-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html.preview-animated #sepg-screen.preview-active {
+  transform: translateY(0);
+}
+
+html.preview-animated #epg-screen {
+  transform: translateY(16px);
+}
+
+html.preview-animated #epg-screen.preview-active {
+  transform: translateY(0);
+}
+
+html.preview-animated #tv-infobar,
+html.preview-animated #tv-fwdbar,
+html.preview-animated #loading-bar,
+html.preview-animated #aspect-bar {
+  transition:
+    opacity var(--preview-duration) ease,
+    transform var(--preview-duration) var(--preview-ease);
+}
+
+html.preview-animated #tv-infobar.preview-hidden,
+html.preview-animated #tv-fwdbar.preview-hidden {
+  opacity: 0;
+  transform: translateY(28px);
+  display: block !important;
+  pointer-events: none;
+}
+
+html.preview-animated #tv-infobar:not(.preview-hidden),
+html.preview-animated #tv-fwdbar:not(.preview-hidden) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+html.preview-animated #loading-bar.preview-hidden,
+html.preview-animated #aspect-bar.preview-hidden {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+html.preview-animated #loading-bar:not(.preview-hidden),
+html.preview-animated #aspect-bar:not(.preview-hidden) {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html.preview-animated #epg-screen ul li,
+html.preview-animated #epg-screen .screen-content .header,
+html.preview-animated #navigation-panel li div {
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+html.preview-animated #infobar-program-progress,
+html.preview-animated #infobar-program-progress-fwd,
+html.preview-animated #infobar-program-pin,
+html.preview-animated #infobar-program-pin-fwd {
+  transition: width 0.35s var(--preview-ease), left 0.35s var(--preview-ease);
+}
+
+html.preview-animated #dev-panel button {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
