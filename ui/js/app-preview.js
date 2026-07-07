@@ -4,7 +4,7 @@
   var currentScreen = 'player';
   var cycleTimer = null;
   var mockData = null;
-  var ANIM_MS = 280;
+  var layerTimers = {};
 
   function byId(id) { return document.getElementById(id); }
 
@@ -28,20 +28,28 @@
   function setLayerActive(id, active) {
     var el = byId(id);
     if (!el) return;
+
+    if (layerTimers[id]) {
+      clearTimeout(layerTimers[id]);
+      layerTimers[id] = null;
+    }
+
     if (!isAnimated()) {
       setVisible(id, active);
       el.classList.toggle('preview-active', active);
       return;
     }
+
     el.style.display = 'block';
     el.classList.remove('preview-hidden');
     el.classList.toggle('preview-active', active);
     if (!active) {
-      window.setTimeout(function () {
+      layerTimers[id] = window.setTimeout(function () {
+        layerTimers[id] = null;
         if (!el.classList.contains('preview-active')) {
           el.style.display = 'none';
         }
-      }, ANIM_MS);
+      }, 280);
     }
   }
 
@@ -176,6 +184,7 @@
         PlayerUI.applyPlayingDemo();
         setInfobarVisible(true);
       } else if (name === 'sepg') {
+        setInfobarVisible(false);
         PlayerUI.showError(null);
         SepgUI.applyDemo();
       } else if (name === 'epg') {

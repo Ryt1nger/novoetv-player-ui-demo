@@ -6,7 +6,6 @@
   <title>NovoeTV Player UI</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/player.css">
-  <link rel="stylesheet" href="css/preview-animations.css">
   <style>
     #mock-video-bg {
       position: absolute;
@@ -63,7 +62,7 @@
     html.audit-mode #preview-dim-overlay { transition: none; }
   </style>
   <script>
-    document.documentElement.classList.add('browser-preview', 'preview-animated');
+    document.documentElement.classList.add('browser-preview');
     if (new URLSearchParams(location.search).has('audit')) {
       document.documentElement.classList.add('audit-mode');
     }
