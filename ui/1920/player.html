@@ -111,19 +111,17 @@
     var cycleTimer = null;
 
     var STATES = {
-      live: function () { PlayerUI.applyLiveDemo(); },
+      live: function () { PlayerUI.applyBufferingDemo(); },
       playing: function () { PlayerUI.applyPlayingDemo(); },
       paused: function () { PlayerUI.applyPausedDemo(); },
-      loading: function () {
-        PlayerUI.applyPlayingDemo();
-        PlayerUI.showLoading(true);
-      },
+      loading: function () { PlayerUI.applyBufferingDemo(); },
       error: function () {
         PlayerUI.showError('Нет каналов в тарифе');
       },
       vod: function () {
         PlayerUI.applyPlayingDemo();
         PlayerUI.setVodMode(true);
+        PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.video);
       },
       fwd: function () {
         PlayerUI.applyPlayingDemo();
@@ -141,6 +139,7 @@
           number: '013', name: 'NTV', icon: PlayerUI.DEMO_CHANNEL_ICON,
           program_name: 'Сёстры, 1-2 серия', has_record: true
         });
+        PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.archive);
       }
     };
 

@@ -2,6 +2,7 @@
   'use strict';
 
   var currentScreen = 'player';
+  var currentPlayerState = 'playing';
   var cycleTimer = null;
   var mockData = null;
   var layerTimers = {};
@@ -94,19 +95,17 @@
   }
 
   var PLAYER_STATES = {
-    live: function () { PlayerUI.applyLiveDemo(); },
+    live: function () { PlayerUI.applyBufferingDemo(); },
     playing: function () { PlayerUI.applyPlayingDemo(); },
     paused: function () { PlayerUI.applyPausedDemo(); },
-    loading: function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.showLoading(true);
-    },
+    loading: function () { PlayerUI.applyBufferingDemo(); },
     error: function () {
       PlayerUI.showError('Нет каналов в тарифе');
     },
     vod: function () {
       PlayerUI.applyPlayingDemo();
       PlayerUI.setVodMode(true);
+      PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.video);
     },
     fwd: function () {
       PlayerUI.applyPlayingDemo();
@@ -124,6 +123,7 @@
         number: '013', name: 'NTV', icon: PlayerUI.DEMO_CHANNEL_ICON,
         program_name: 'Сёстры, 1-2 серия', has_record: true
       });
+      PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.archive);
     }
   };
 
@@ -176,12 +176,12 @@
       setPanelSection(name);
 
       if (name !== 'player') {
-        PlayerUI.setAspectLabel('');
+        PlayerUI.hideAspectPad();
         PlayerUI.showLoading(false);
       }
 
       if (name === 'player') {
-        PlayerUI.applyPlayingDemo();
+        AppPreview.applyPlayerState(currentPlayerState);
         setInfobarVisible(true);
       } else if (name === 'sepg') {
         setInfobarVisible(false);
@@ -193,7 +193,9 @@
     },
 
     applyPlayerState: function (stateName) {
-      if (PLAYER_STATES[stateName]) PLAYER_STATES[stateName]();
+      if (!PLAYER_STATES[stateName]) return;
+      currentPlayerState = stateName;
+      PLAYER_STATES[stateName]();
     },
 
     applySepgState: function (stateName) {

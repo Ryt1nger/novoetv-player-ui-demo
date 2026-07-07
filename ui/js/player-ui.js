@@ -6,6 +6,14 @@
     'tvchannels', 'epg', 'mainmenu', 'info'
   ];
 
+  var aspectPadTimer = null;
+
+  var MODE_LABELS = {
+    live: 'Прямой эфир',
+    archive: 'Архив',
+    video: 'Видео'
+  };
+
   var state = {
     disabledIcons: {
       multiaudio: true,
@@ -255,16 +263,34 @@
         setVisible('playing-error-bar', true);
         setVisible('tv-infobar', false);
         setVisible('loading-bar', false);
-        setVisible('aspect-bar', false);
+        this.hideAspectPad();
       } else {
         setVisible('playing-error-bar', false);
       }
     },
 
-    setAspectLabel: function (text) {
+    hideAspectPad: function () {
+      if (aspectPadTimer) {
+        clearTimeout(aspectPadTimer);
+        aspectPadTimer = null;
+      }
       var el = byId('aspect-bar');
-      if (el) el.textContent = text || '';
-      setVisible('aspect-bar', !!text);
+      if (el) el.textContent = '';
+      setVisible('aspect-bar', false);
+    },
+
+    showAspectPad: function (text) {
+      var el = byId('aspect-bar');
+      if (!el || !text) {
+        this.hideAspectPad();
+        return;
+      }
+      el.textContent = text;
+      setVisible('aspect-bar', true);
+      if (aspectPadTimer) clearTimeout(aspectPadTimer);
+      aspectPadTimer = window.setTimeout(function () {
+        PlayerUI.hideAspectPad();
+      }, 7000);
     },
 
     applyLiveDemo: function () {
@@ -283,8 +309,9 @@
         program_name: 'Сёстры, 1-2 серия',
         has_record: true
       });
+      this.setLiveTv(true);
       this.setProgress(0.07, 1, 1500);
-      this.setAspectLabel('Видео');
+      this.showAspectPad(MODE_LABELS.live);
       this.showError(null);
       this.showFwdBar(false);
       this.setVodMode(false);
@@ -302,12 +329,17 @@
       this.applyLiveDemo();
       this.showLoading(false);
       this.setPlaying(true);
+    },
+
+    applyBufferingDemo: function () {
+      this.applyLiveDemo();
     }
   };
 
   /** Ассеты превью (в проде — с сервера / custom_css) */
   PlayerUI.DEMO_CHANNEL_ICON = '../../mocks/channel-poster-ntv.png';
   PlayerUI.DEMO_COMPANY_LOGO = '../../mocks/company-logo-novoetv.png';
+  PlayerUI.MODE_LABELS = MODE_LABELS;
 
   global.PlayerUI = PlayerUI;
 })(typeof window !== 'undefined' ? window : this);
