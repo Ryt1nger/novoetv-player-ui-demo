@@ -188,6 +188,7 @@
       } else if (name === 'sepg') {
         EpgUI.hide();
         PlayerUI.applyPlayingDemo();
+        PlayerUI.hideAspectPad();
         setInfobarVisible(true);
         PlayerUI.showError(null);
         SepgUI.applyDemo();

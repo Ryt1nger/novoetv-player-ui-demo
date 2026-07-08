@@ -43,7 +43,20 @@
   --v4-footer-icon: 40px;
   --v4-footer-pad: 60px;
   --v4-footer-text: 24px;
+  --v4-footer-text-gap: 16px;
   --v4-clock-text: 30px;
+  --v4-ch-icon-margin-start: 24px;
+  --v4-ch-icon-margin-top: 15px;
+  --v4-text-margin-start: 20px;
+  --v4-actions-margin-end: 24px;
+  --v4-focus-padding: 8px;
+  --v4-seek-margin-start: 24px;
+  --v4-seek-margin-end: 36px;
+  --v4-meta-padding-bottom: 17px;
+  --v4-meta-margin-end: 30px;
+  --v4-live-btn-pad-h: 20px;
+  --v4-live-btn-margin-end: 10px;
+  --v4-program-tag-margin-top: 20px;
 
   /* fragment_tv_category */
   --v4-cat-w: 420px;
