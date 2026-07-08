@@ -1,33 +1,33 @@
 (function (global) {
   'use strict';
 
-  var NAV_ACTIONS = [
-    'favorites', 'mycontent', 'stop', 'multiaudio', 'pause',
-    'tvchannels', 'epg', 'mainmenu', 'info'
+  var ACTION_BUTTONS = [
+    { id: 'program', label: 'Программа', icon: 'program' },
+    { id: 'watch', label: 'Буду смотреть', icon: 'watch' },
+    { id: 'favorite', label: 'Добавить в Избранное', icon: 'favorite' }
   ];
 
+  var ACTION_ICONS = {
+    program: '<svg viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h10v2H4v-2z"/></svg>',
+    watch: '<svg viewBox="0 0 24 24"><path d="M12 4C7 4 2.7 7.1 1 12c1.7 4.9 6 8 11 8s9.3-3.1 11-8c-1.7-4.9-6-8-11-8zm0 13c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>',
+    favorite: '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+  };
+
   var aspectPadTimer = null;
+  var clockTimer = null;
 
   var MODE_LABELS = {
     live: 'Прямой эфир',
     archive: 'Архив',
-    video: 'Видео'
+    video: 'Видео',
+    onAir: 'Эфир'
   };
 
   var state = {
-    disabledIcons: {
-      multiaudio: true,
-      rew: true,
-      pause: false,
-      play: false,
-      fwd: true,
-      stop: false
-    },
-    isPlaying: true,
-    isLiveTv: true,
+    actionSelected: 'watch',
     favoritesMarked: false,
-    navSelected: 4,
-    vodMode: false
+    isLiveTv: true,
+    showLiveBtn: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -36,7 +36,7 @@
     var el = byId(id);
     if (!el) return;
     if (visible) {
-      el.style.display = 'block';
+      el.style.display = '';
       el.classList.remove('preview-hidden');
     } else {
       el.style.display = 'none';
@@ -71,184 +71,161 @@
     return timeStr;
   }
 
-  function padChannelNumber(num) {
-    if (num === '' || num === undefined || num === null) return '';
-    return ('00' + num).slice(-3);
+  function formatClock(d) {
+    d = d || new Date();
+    var months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+      'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    var h = d.getHours();
+    var m = d.getMinutes();
+    return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ' ' +
+      (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
   }
 
-  function applyProgress(isFwd, percent) {
+  function applyProgress(percent) {
     percent = Math.max(0, Math.min(100, percent));
-    var pin = byId(isFwd ? 'infobar-program-pin-fwd' : 'infobar-program-pin');
-    var progress = byId(isFwd ? 'infobar-program-progress-fwd' : 'infobar-program-progress');
-    var container = byId(isFwd ? 'infobar-progress-fwd' : 'infobar-progress-info');
+    var pin = byId('infobar-program-pin');
+    var progress = byId('infobar-program-progress');
+    var container = byId('infobar-progress-info');
     if (!pin || !progress || !container) return;
-    var pinWidth = pin.offsetWidth || 50;
-    var totalWidth = Math.max(0, container.offsetWidth - pinWidth);
+    var pinWidth = pin.offsetWidth || 18;
+    var totalWidth = Math.max(0, container.offsetWidth);
     var left = Math.floor(totalWidth * percent / 100);
-    progress.style.width = (left + Math.floor(pinWidth / 2)) + 'px';
+    progress.style.width = left + 'px';
     pin.style.left = left + 'px';
   }
 
-  function getNavButtonClass(action) {
-    var item = action;
-    if (action === 'pause' && !state.isPlaying) item = 'play';
-    var disabled = state.disabledIcons[item] || state.disabledIcons[action];
-    if (action === 'multiaudio' && state.disabledIcons.multiaudio) {
-      return 'multiaudio multiaudio_disabled';
+  function buildActions() {
+    var wrap = byId('controller-actions');
+    if (!wrap) return;
+    wrap.innerHTML = '';
+
+    var liveBtn = document.createElement('button');
+    liveBtn.id = 'btn-live';
+    liveBtn.className = 'btn-live';
+    liveBtn.textContent = MODE_LABELS.onAir;
+    liveBtn.type = 'button';
+    if (!state.showLiveBtn) liveBtn.classList.add('preview-hidden');
+    wrap.appendChild(liveBtn);
+
+    for (var i = 0; i < ACTION_BUTTONS.length; i++) {
+      var cfg = ACTION_BUTTONS[i];
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'focus-switch';
+      btn.setAttribute('data-action', cfg.id);
+      btn.innerHTML =
+        '<span class="focus-switch-icon">' + (ACTION_ICONS[cfg.icon] || '') + '</span>' +
+        '<span class="focus-switch-label">' + cfg.label + '</span>';
+      if (cfg.id === state.actionSelected) btn.classList.add('selected');
+      if (cfg.id === 'favorite' && state.favoritesMarked) btn.classList.add('marked');
+      wrap.appendChild(btn);
     }
-    return item + (disabled ? '_disabled' : '');
+  }
+
+  function syncActionButtons() {
+    var wrap = byId('controller-actions');
+    if (!wrap) return;
+    var liveBtn = byId('btn-live');
+    if (liveBtn) liveBtn.classList.toggle('preview-hidden', !state.showLiveBtn);
+    wrap.querySelectorAll('.focus-switch').forEach(function (btn) {
+      var action = btn.getAttribute('data-action');
+      btn.classList.toggle('selected', action === state.actionSelected);
+      btn.classList.toggle('marked', action === 'favorite' && state.favoritesMarked);
+    });
+  }
+
+  function startClock() {
+    var el = byId('footer-clock');
+    if (!el) return;
+    function tick() {
+      el.textContent = formatClock();
+    }
+    tick();
+    if (clockTimer) clearInterval(clockTimer);
+    clockTimer = setInterval(tick, 30000);
   }
 
   var PlayerUI = {
-    NAV_ACTIONS: NAV_ACTIONS,
+    NAV_ACTIONS: ACTION_BUTTONS.map(function (a) { return a.id; }),
+    ACTION_BUTTONS: ACTION_BUTTONS,
 
-    buildNavigation: function () {
-      var ul = byId('navigation-list');
-      if (!ul) return;
-      ul.innerHTML = '';
-      ul.className = 'selected';
-      for (var i = 0; i < NAV_ACTIONS.length; i++) {
-        var action = NAV_ACTIONS[i];
-        var li = document.createElement('li');
-        li.id = 'nav' + i;
-        if (i === state.navSelected) li.className = 'selected';
-        var div = document.createElement('div');
-        div.id = 'btn-' + action + '-div';
-        div.className = getNavButtonClass(action);
-        if (action === 'favorites' && state.favoritesMarked) div.classList.add('marked');
-        li.appendChild(div);
-        ul.appendChild(li);
-      }
-    },
-
-    syncNavIcons: function () {
-      if (state.isLiveTv) state.disabledIcons.stop = true;
-      for (var i = 0; i < NAV_ACTIONS.length; i++) {
-        var action = NAV_ACTIONS[i];
-        var div = byId('btn-' + action + '-div');
-        if (!div) continue;
-        div.className = getNavButtonClass(action);
-        if (action === 'favorites' && state.favoritesMarked) div.classList.add('marked');
-      }
-    },
+    buildNavigation: function () { this.buildActions(); },
+    buildActions: buildActions,
+    syncNavIcons: syncActionButtons,
 
     setNavSelected: function (index) {
-      state.navSelected = index;
-      var ul = byId('navigation-list');
-      if (!ul) return;
-      var items = ul.querySelectorAll('li');
-      for (var i = 0; i < items.length; i++) {
-        items[i].classList.toggle('selected', i === index);
-      }
+      var action = ACTION_BUTTONS[index];
+      if (action) this.setActionFocus(action.id);
     },
 
-    setDisabledIcons: function (map) {
-      for (var k in map) state.disabledIcons[k] = map[k];
-      this.syncNavIcons();
+    setActionFocus: function (actionId) {
+      state.actionSelected = actionId;
+      syncActionButtons();
     },
 
-    setPlaying: function (isPlaying) {
-      state.isPlaying = !!isPlaying;
-      this.syncNavIcons();
-    },
-
+    setDisabledIcons: function () {},
+    setPlaying: function () {},
     setLiveTv: function (isLive) {
       state.isLiveTv = !!isLive;
-      state.disabledIcons.stop = state.isLiveTv;
-      this.syncNavIcons();
+      state.showLiveBtn = !state.isLiveTv;
+      syncActionButtons();
     },
 
     setArchiveControls: function () {
       state.isLiveTv = false;
-      state.disabledIcons = {
-        multiaudio: true,
-        rew: false,
-        pause: false,
-        play: false,
-        fwd: false,
-        stop: false
-      };
-      this.syncNavIcons();
+      state.showLiveBtn = true;
+      syncActionButtons();
     },
 
     setFavoritesMarked: function (marked) {
       state.favoritesMarked = !!marked;
-      var el = byId('btn-favorites-div');
-      if (el) {
-        el.classList.toggle('marked', state.favoritesMarked);
-        if (state.favoritesMarked) {
-          el.className = getNavButtonClass('favorites') + ' marked';
-        }
-      }
+      syncActionButtons();
     },
 
     setChannel: function (channel) {
       channel = channel || {};
       var icon = byId('player-channel-icon');
-      if (icon) icon.src = channel.icon || 'no_logo.gif';
+      if (icon) icon.src = channel.icon || '../../assets/v4/img_default_channel.png';
 
-      var numEl = byId('infobar-channel-number');
       var nameEl = byId('infobar-channel-name');
-      if (numEl) numEl.textContent = padChannelNumber(channel.number);
-      if (nameEl) nameEl.textContent = channel.name || '';
-
-      var programName = channel.program_name || '';
       var programEl = byId('infobar-program-name');
-      var programFwd = byId('infobar-program-name-fwd');
-      if (programEl) programEl.textContent = programName;
-      if (programFwd) programFwd.textContent = programName;
-
-      if (channel.has_record && !channel.locked) {
-        state.disabledIcons.rew = false;
-        state.disabledIcons.pause = false;
-        state.disabledIcons.fwd = true;
-        state.disabledIcons.stop = false;
-      } else {
-        state.disabledIcons.rew = true;
-        state.disabledIcons.pause = true;
-        state.disabledIcons.fwd = true;
-        state.disabledIcons.stop = true;
+      var tagEl = byId('program-tag');
+      if (nameEl) nameEl.textContent = channel.name || '';
+      if (programEl) programEl.textContent = channel.program_name || '';
+      if (tagEl) {
+        if (channel.tag) {
+          tagEl.textContent = channel.tag;
+          setVisible('program-tag', true);
+        } else {
+          tagEl.textContent = '';
+          setVisible('program-tag', false);
+        }
       }
-      this.syncNavIcons();
     },
 
     setProgress: function (percent, currentSec, durationSec) {
-      applyProgress(false, percent);
-      applyProgress(true, percent);
-      if (currentSec !== undefined) {
-        var t = formatSeconds(currentSec, true);
-        var te = byId('infobar-program-time');
-        var tef = byId('infobar-program-time-fwd');
-        if (te) te.textContent = t;
-        if (tef) tef.textContent = t;
+      applyProgress(percent);
+      var te = byId('infobar-program-time');
+      var de = byId('infobar-program-duration');
+      if (currentSec !== undefined && te) {
+        te.textContent = formatSeconds(currentSec, true);
       }
-      if (durationSec !== undefined) {
-        var d = formatSeconds(durationSec, true);
-        var de = byId('infobar-program-duration');
-        var def = byId('infobar-program-duration-fwd');
-        if (de) de.textContent = d;
-        if (def) def.textContent = d;
+      if (durationSec !== undefined && de) {
+        de.textContent = formatSeconds(durationSec, true);
       }
     },
 
     setVodMode: function (vod) {
-      state.vodMode = !!vod;
       var screen = byId('player-screen');
-      if (screen) screen.classList.toggle('vod', state.vodMode);
+      if (screen) screen.classList.toggle('vod', !!vod);
     },
 
     showInfobar: function (show) {
-      setVisible('tv-infobar', show !== false);
+      setVisible('player-controller', show !== false);
     },
 
-    showFwdBar: function (show) {
-      var screen = byId('player-screen');
-      if (screen) screen.classList.toggle('show-fwd', !!show);
-      if (show) {
-        setVisible('tv-infobar', false);
-      } else {
-        this.showInfobar(true);
-      }
+    showFwdBar: function () {
+      this.showInfobar(true);
     },
 
     showLoading: function (show) {
@@ -261,7 +238,7 @@
       if (message) {
         bar.textContent = message;
         setVisible('playing-error-bar', true);
-        setVisible('tv-infobar', false);
+        setVisible('player-controller', false);
         setVisible('loading-bar', false);
         this.hideAspectPad();
       } else {
@@ -294,41 +271,34 @@
     },
 
     applyLiveDemo: function () {
-      state.isPlaying = false;
-      state.isLiveTv = true;
       state.favoritesMarked = false;
-      state.navSelected = 4;
-      state.disabledIcons = {
-        multiaudio: true, rew: false, pause: false, play: false, fwd: true, stop: false
-      };
-      this.buildNavigation();
+      state.actionSelected = 'watch';
+      state.isLiveTv = true;
+      state.showLiveBtn = false;
+      this.buildActions();
       this.setChannel({
-        number: '',
         name: 'NTV',
         icon: PlayerUI.DEMO_CHANNEL_ICON,
-        program_name: 'Сёстры, 1-2 серия',
-        has_record: true
+        program_name: 'Сёстры, 1-2 серия'
       });
       this.setLiveTv(true);
       this.setProgress(0.07, 1, 1500);
       this.showAspectPad(MODE_LABELS.live);
       this.showError(null);
-      this.showFwdBar(false);
       this.setVodMode(false);
       this.showInfobar(true);
       this.showLoading(true);
+      startClock();
     },
 
     applyPausedDemo: function () {
       this.applyLiveDemo();
       this.showLoading(false);
-      this.setPlaying(false);
     },
 
     applyPlayingDemo: function () {
       this.applyLiveDemo();
       this.showLoading(false);
-      this.setPlaying(true);
     },
 
     applyBufferingDemo: function () {
@@ -343,9 +313,8 @@
     }
   };
 
-  /** Ассеты превью (в проде — с сервера / custom_css) */
   PlayerUI.DEMO_CHANNEL_ICON = '../../mocks/channel-poster-ntv.png';
-  PlayerUI.DEMO_COMPANY_LOGO = '../../mocks/company-logo-novoetv.png';
+  PlayerUI.DEMO_COMPANY_LOGO = '../../assets/v4/img_logo_player.png';
   PlayerUI.MODE_LABELS = MODE_LABELS;
 
   global.PlayerUI = PlayerUI;

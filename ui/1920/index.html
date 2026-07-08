@@ -6,6 +6,7 @@
   <title>NovoeTV Player UI</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/player-v4.css">
   <style>
     #mock-video-bg {
       position: absolute;
@@ -83,43 +84,42 @@
     <div id="player-screen" class="screen">
       <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden"></div>
 
-      <div id="tv-infobar" class="preview-hidden">
-        <div id="player-company-logo">
-          <img id="player-company-logo-img" src="../../mocks/company-logo-novoetv.png" alt="NOVOE TV">
+      <div id="player-controller" class="preview-hidden">
+        <div id="controller-gradient" aria-hidden="true"></div>
+        <div id="controller-logo-badge">
+          <img id="controller-logo" src="../../assets/v4/img_logo_player.png" alt="NOVOE TV">
         </div>
-        <div id="block-tv-info">
-          <div id="navigation-splitter"></div>
-          <div id="navigation-panel">
-            <ul id="navigation-list"></ul>
+        <div id="controller-panel">
+          <div id="controller-seek-block">
+            <div id="controller-center-title" class="preview-hidden"></div>
+            <div class="controller-seek-row">
+              <span id="infobar-program-time" class="seek-time">--:--</span>
+              <div id="infobar-progress-info">
+                <div id="infobar-program-total"></div>
+                <div id="infobar-program-progress"></div>
+                <div id="infobar-program-pin"></div>
+              </div>
+              <span id="infobar-program-duration" class="seek-time">--:--</span>
+            </div>
           </div>
-          <div id="infobar-common-info">
-            <div id="infobar-channel-icon">
-              <img id="player-channel-icon" src="no_logo.gif" alt="">
+          <div id="controller-meta-row">
+            <div class="controller-meta-left">
+              <img id="player-channel-icon" src="../../assets/v4/img_default_channel.png" alt="">
+              <div class="controller-text-block">
+                <div id="infobar-channel-name"></div>
+                <div id="infobar-program-name"></div>
+                <div id="program-tag" class="preview-hidden"></div>
+              </div>
             </div>
-            <div id="infobar-channel-number"></div>
-            <div id="infobar-channel-name"></div>
-            <div id="infobar-program-name"></div>
-            <div id="infobar-program-time"></div>
-            <div id="infobar-progress-info">
-              <div id="infobar-program-total"></div>
-              <div id="infobar-program-progress"></div>
-              <div id="infobar-program-pin"></div>
-            </div>
-            <div id="infobar-program-duration"></div>
+            <div id="controller-actions"></div>
           </div>
         </div>
-      </div>
-
-      <div id="tv-fwdbar">
-        <div id="infobar-common-fwd">
-          <div id="infobar-program-name-fwd"></div>
-          <div id="infobar-program-time-fwd"></div>
-          <div id="infobar-progress-fwd">
-            <div id="infobar-program-total-fwd"></div>
-            <div id="infobar-program-progress-fwd"></div>
-            <div id="infobar-program-pin-fwd"></div>
+        <div id="controller-footer">
+          <div class="footer-hint">
+            <svg class="footer-hint-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M15 18l-6-6 6-6v12z"/></svg>
+            <span>Просмотр</span>
           </div>
-          <div id="infobar-program-duration-fwd"></div>
+          <span id="footer-clock"></span>
         </div>
       </div>
     </div>
@@ -202,14 +202,12 @@
       <button type="button" data-player-state="paused">Paused</button>
       <button type="button" data-player-state="loading">Loading</button>
       <button type="button" data-player-state="error">Error</button>
-      <button type="button" data-player-state="vod">VOD</button>
-      <button type="button" data-player-state="fwd">Fwd bar</button>
-      <button type="button" data-player-state="fav">Fav ✓</button>
       <button type="button" data-player-state="archive">Archive</button>
-      <label>| Nav:</label>
-      <button type="button" data-nav-index="0">♥</button>
-      <button type="button" data-nav-index="4" class="active">pause</button>
-      <button type="button" data-nav-index="6">epg</button>
+      <button type="button" data-player-state="fav">Fav ✓</button>
+      <label>| Focus:</label>
+      <button type="button" data-action-focus="program">Программа</button>
+      <button type="button" data-action-focus="watch" class="active">Смотреть</button>
+      <button type="button" data-action-focus="favorite">♥</button>
       <input type="range" id="progress-slider" min="0" max="100" value="50" style="width:90px" title="Прогресс">
     </div>
 

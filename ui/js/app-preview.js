@@ -58,7 +58,7 @@
       PlayerUI.showInfobar(visible);
       return;
     }
-    var ib = byId('tv-infobar');
+    var ib = byId('player-controller');
     if (!ib) return;
     ib.style.display = 'block';
     ib.classList.toggle('preview-hidden', !visible);
@@ -108,7 +108,6 @@
     },
     fwd: function () {
       PlayerUI.applyPlayingDemo();
-      PlayerUI.showFwdBar(true);
       PlayerUI.setProgress(50, 750, 1500);
     },
     fav: function () {
@@ -207,7 +206,10 @@
 
     setPlayerNav: function (index) {
       PlayerUI.setNavSelected(index);
-      pulseContentShift('navigation-list');
+    },
+
+    setActionFocus: function (actionId) {
+      PlayerUI.setActionFocus(actionId);
     },
 
     setEpgFocus: function (column) {
@@ -268,6 +270,15 @@
           AppPreview.applyEpgState(epgState.getAttribute('data-epg-state'));
           panel.querySelectorAll('[data-epg-state]').forEach(function (b) {
             b.classList.toggle('active', b === epgState);
+          });
+          return;
+        }
+
+        var actionFocus = e.target.closest('[data-action-focus]');
+        if (actionFocus) {
+          AppPreview.setActionFocus(actionFocus.getAttribute('data-action-focus'));
+          panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
+            b.classList.toggle('active', b === actionFocus);
           });
           return;
         }
