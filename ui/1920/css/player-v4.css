@@ -1,4 +1,6 @@
-/* NovoeTV 4.000 player controller — layout_controller.xml @ xhdpi (dip×2) */
+/* NovoeTV 4.000 — layout_controller.xml */
+
+@import url('v4-tokens.css');
 
 #player-screen #player-controller {
   position: absolute;
@@ -16,46 +18,68 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 400px;
-  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.35) 45%, transparent 100%);
+  height: var(--v4-gradient-h);
   pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(14, 30, 43, 0.34) 32%, rgba(27, 59, 84, 0) 100%);
+}
+
+#controller-bottom-stack {
+  position: relative;
+  pointer-events: none;
+}
+
+#controller-recycler-wrap {
+  position: absolute;
+  left: var(--v4-pad-h);
+  right: var(--v4-pad-h);
+  bottom: calc(var(--v4-footer-h) + var(--v4-panel-mb) + var(--v4-panel-max-h) + 8px);
+  max-height: 320px;
+  overflow: hidden;
+  z-index: 14;
+  pointer-events: auto;
+}
+
+#controller-recycler.preview-hidden,
+#controller-recycler-wrap.preview-hidden {
+  display: none !important;
 }
 
 #controller-logo-badge {
   position: absolute;
-  left: 21px;
-  bottom: 428px;
-  width: 120px;
-  height: 91px;
-  background: rgba(0, 0, 0, 0.43);
+  left: var(--v4-panel-mx);
+  bottom: calc(var(--v4-footer-h) + var(--v4-panel-mb) + var(--v4-panel-max-h) + var(--v4-logo-mb));
+  width: var(--v4-logo-w);
+  height: var(--v4-logo-h);
+  background: var(--v4-panel-bg);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 13;
 }
 
 #controller-logo-badge img {
-  width: 60px;
-  height: auto;
-  max-height: 45px;
+  width: var(--v4-logo-img-w);
+  height: var(--v4-logo-img-h);
   object-fit: contain;
 }
 
 #controller-panel {
   position: relative;
-  margin: 0 21px 12px;
-  max-height: 344px;
-  background: rgba(0, 0, 0, 0.43);
+  margin: 0 var(--v4-panel-mx) var(--v4-panel-mb);
+  max-height: var(--v4-panel-max-h);
+  background: var(--v4-panel-bg);
   overflow: hidden;
+  z-index: 12;
 }
 
 #controller-seek-block {
-  padding: 16px 24px 0;
+  padding: 33px 0 0;
 }
 
 #controller-center-title {
   text-align: center;
-  color: #fff;
-  font-size: 30px;
+  color: var(--v4-white);
+  font-size: var(--v4-seek-text);
   line-height: 1.2;
   margin-bottom: 8px;
   white-space: nowrap;
@@ -66,24 +90,30 @@
 .controller-seek-row {
   display: flex;
   align-items: center;
-  gap: 0;
 }
 
 .controller-seek-row .seek-time {
-  flex: 0 0 132px;
-  font-size: 30px;
-  color: #fff;
+  flex: 0 0 var(--v4-seek-min-w);
+  font-size: var(--v4-seek-text);
+  color: var(--v4-white);
   line-height: 1;
 }
 
-.controller-seek-row .seek-time:first-child { text-align: left; }
-.controller-seek-row .seek-time:last-child { text-align: right; }
+.controller-seek-row .seek-time:first-child {
+  text-align: left;
+  margin-left: 24px;
+}
+
+.controller-seek-row .seek-time:last-child {
+  text-align: right;
+  margin-right: 36px;
+}
 
 #infobar-progress-info {
   flex: 1;
   position: relative;
-  height: 48px;
-  margin: 0 8px;
+  height: var(--v4-thumb);
+  margin: 0 var(--v4-seek-pad);
 }
 
 #infobar-program-total {
@@ -92,9 +122,9 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.44);
+  height: var(--v4-track-h);
+  border-radius: 4px;
+  background: var(--v4-track);
 }
 
 #infobar-program-progress {
@@ -102,9 +132,9 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 6px;
-  border-radius: 3px;
-  background: #86dbff;
+  height: var(--v4-track-h);
+  border-radius: 4px;
+  background: var(--v4-accent);
   width: 0;
 }
 
@@ -112,20 +142,28 @@
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #86dbff;
+  width: var(--v4-thumb);
+  height: var(--v4-thumb);
   left: 0;
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
+  padding: 0;
+  border: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+#infobar-program-pin img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
 }
 
 #controller-meta-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  padding: 12px 24px 20px;
+  gap: 30px;
+  padding: 0 24px 17px;
 }
 
 .controller-meta-left {
@@ -134,35 +172,32 @@
   gap: 20px;
   min-width: 0;
   flex: 1;
+  margin-top: 15px;
+  margin-left: 24px;
 }
 
 #player-channel-icon {
-  width: 96px;
-  height: 96px;
+  width: var(--v4-ch-icon);
+  height: var(--v4-ch-icon);
   object-fit: cover;
   flex-shrink: 0;
   background: #1a2a3a;
 }
 
-.controller-text-block {
-  min-width: 0;
-  padding-top: 4px;
-}
-
 #infobar-channel-name {
-  font-size: 42px;
+  font-size: var(--v4-ch-name);
   line-height: 1.15;
-  color: #fff;
+  color: var(--v4-white);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 #infobar-program-name {
-  font-size: 30px;
+  font-size: var(--v4-prog-text);
   line-height: 1.25;
-  color: #fff;
-  margin-top: 4px;
+  color: var(--v4-white);
+  margin-top: 8px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -170,72 +205,76 @@
 }
 
 #program-tag {
-  font-size: 30px;
+  font-size: var(--v4-prog-text);
   line-height: 1.2;
-  color: #fff;
-  margin-top: 8px;
+  color: var(--v4-white);
+  margin-top: 20px;
   opacity: 0.85;
 }
 
 #controller-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
   pointer-events: auto;
+  margin-right: 24px;
+  margin-top: 8px;
 }
 
 #btn-live {
-  height: 60px;
+  height: var(--v4-live-h);
   padding: 0 20px;
+  margin-right: 10px;
   border: none;
   border-radius: 6px;
-  background: #051a31;
-  color: #fff;
-  font-size: 24px;
+  background: var(--v4-bg-list);
+  color: var(--v4-white);
+  font-size: var(--v4-focus-text);
   cursor: pointer;
 }
 
 .focus-switch {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 60px;
-  padding: 0 12px;
-  border: 1px solid transparent;
-  border-radius: 10px;
+  gap: 8px;
+  min-height: var(--v4-live-h);
+  padding: 8px;
+  border: var(--v4-focus-stroke) solid transparent;
+  border-radius: var(--v4-focus-radius);
   background: transparent;
-  color: #86dbff;
+  color: var(--v4-accent);
   cursor: pointer;
   pointer-events: auto;
 }
 
 .focus-switch .focus-switch-icon {
-  width: 60px;
-  height: 60px;
+  width: var(--v4-focus-icon-bg);
+  height: var(--v4-focus-icon-bg);
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--v4-icon-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.focus-switch .focus-switch-icon svg {
-  width: 27px;
-  height: 27px;
-  fill: #fff;
+.focus-switch .focus-switch-icon .action-icon {
+  width: var(--v4-focus-icon);
+  height: var(--v4-focus-icon);
+  object-fit: contain;
+  display: block;
 }
 
 .focus-switch .focus-switch-label {
   display: none;
-  font-size: 24px;
+  font-size: var(--v4-focus-text);
   white-space: nowrap;
 }
 
 .focus-switch.focused,
 .focus-switch.selected {
-  border-color: #86dbff;
+  border-color: var(--v4-accent);
 }
 
 .focus-switch.focused .focus-switch-label,
@@ -244,37 +283,38 @@
 }
 
 .focus-switch.marked .focus-switch-icon {
-  box-shadow: inset 0 0 0 2px #86dbff;
+  box-shadow: inset 0 0 0 2px var(--v4-accent);
 }
 
 #controller-footer {
   position: relative;
   display: flex;
   align-items: center;
-  height: 72px;
-  margin-top: 0;
-  padding: 0 48px;
-  background: rgba(0, 0, 0, 0.15);
+  height: var(--v4-footer-h);
+  padding: 0 var(--v4-footer-pad);
+  background: var(--v4-footer-bg);
+  z-index: 11;
 }
 
 .footer-hint {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #fff;
-  font-size: 24px;
+  color: var(--v4-white);
+  font-size: var(--v4-footer-text);
 }
 
 .footer-hint-icon {
-  width: 24px;
-  height: 24px;
-  opacity: 0.9;
+  width: var(--v4-footer-icon);
+  height: var(--v4-footer-icon);
+  object-fit: contain;
+  display: block;
 }
 
 #footer-clock {
   margin-left: auto;
-  font-size: 30px;
-  color: #fff;
+  font-size: var(--v4-clock-text);
+  color: var(--v4-white);
   font-variant-numeric: tabular-nums;
 }
 
@@ -283,11 +323,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: auto;
-  max-width: 1320px;
-  padding: 24px 32px;
+  max-width: 800px;
+  padding: 32px 48px;
   background: rgba(0, 0, 0, 0.55);
   border-radius: 8px;
   z-index: 20;
+  font-size: 32px;
 }
 
 #aspect-bar {
@@ -296,10 +337,9 @@
   right: 48px;
   transform: translateY(-50%);
   width: auto;
-  max-width: 400px;
+  max-width: 800px;
   padding: 32px 48px;
   background: rgba(0, 0, 0, 0.55);
-  border-radius: 0;
   font-size: 32px;
   text-align: left;
 }
@@ -310,10 +350,6 @@
   transform: translate(-50%, -50%);
   width: 102px;
   height: 102px;
-}
-
-#loading-bar img {
-  filter: brightness(1.2);
 }
 
 #player-screen #tv-infobar,

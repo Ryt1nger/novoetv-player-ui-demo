@@ -139,6 +139,7 @@
   var EPG_STATES = {
     demo: function () { EpgUI.applyDemo(); },
     loading: function () { EpgUI.applyLoadingDemo(); },
+    'channel-loading': function () { EpgUI.applyChannelLoadingDemo(); },
     empty: function () { EpgUI.applyEmptyDemo(); }
   };
 
@@ -171,6 +172,7 @@
       setDimOverlay(name === 'sepg' ? 'sepg' : (name === 'epg' ? 'epg' : null));
       setLayerActive('player-screen', showPlayerLayer);
       setVisible('iptv-guide', showGuide);
+      setVisible('iptv-date-screen', false);
       setPanelSection(name);
 
       if (name !== 'player' && name !== 'sepg') {
@@ -284,7 +286,9 @@
 
         var actionFocus = e.target.closest('[data-action-focus]');
         if (actionFocus) {
-          AppPreview.setActionFocus(actionFocus.getAttribute('data-action-focus'));
+          var actionId = actionFocus.getAttribute('data-action-focus');
+          AppPreview.setActionFocus(actionId);
+          if (actionId === 'program') AppPreview.showScreen('sepg');
           panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
             b.classList.toggle('active', b === actionFocus);
           });
@@ -308,11 +312,11 @@
 
         if (e.target.closest('[data-action="epg-up"]')) AppPreview.epgShift(-1);
         if (e.target.closest('[data-action="epg-down"]')) AppPreview.epgShift(1);
-        if (e.target.closest('[data-action="epg-left"]')) AppPreview.setEpgFocus('days');
-        if (e.target.closest('[data-action="epg-right"]')) AppPreview.setEpgFocus('programs');
+        if (e.target.closest('[data-action="epg-left"]')) EpgUI.showDateScreen();
+        if (e.target.closest('[data-action="epg-right"]')) EpgUI.hideDateScreen();
         if (e.target.closest('[data-action="sepg-left"]')) AppPreview.sepgShift(-1);
         if (e.target.closest('[data-action="sepg-right"]')) AppPreview.sepgShift(1);
-        if (e.target.id === 'iptv-back') AppPreview.showScreen('player');
+        if (e.target.id === 'iptv-date-back') EpgUI.hideDateScreen();
       });
 
       var slider = byId('progress-slider');
@@ -328,7 +332,9 @@
       window.addEventListener('resize', AppPreview.fitPreviewScale);
       AppPreview.initDevPanel();
       return AppPreview.loadMocks().then(function () {
-        AppPreview.showScreen('player');
+        var params = new URLSearchParams(location.search);
+        var screen = params.get('screen') || 'player';
+        AppPreview.showScreen(screen);
         var slider = byId('progress-slider');
         if (slider) slider.value = 0;
       });

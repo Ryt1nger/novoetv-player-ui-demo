@@ -7,11 +7,15 @@
     { id: 'favorite', label: 'Добавить в Избранное', icon: 'favorite' }
   ];
 
-  var ACTION_ICONS = {
-    program: '<svg viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h10v2H4v-2z"/></svg>',
-    watch: '<svg viewBox="0 0 24 24"><path d="M12 4C7 4 2.7 7.1 1 12c1.7 4.9 6 8 11 8s9.3-3.1 11-8c-1.7-4.9-6-8-11-8zm0 13c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>',
-    favorite: '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
-  };
+  var ICON_BASE = '../../assets/v4/icons/';
+
+  function actionIcon(name, marked) {
+    var file = name;
+    if (name === 'favorite' && marked) file = 'ic_favorite_filled';
+    else if (name === 'watch' && marked) file = 'ic_watch_filled';
+    else file = 'ic_' + name;
+    return '<img class="action-icon" src="' + ICON_BASE + file + '.svg" alt="">';
+  }
 
   var aspectPadTimer = null;
   var clockTimer = null;
@@ -87,7 +91,7 @@
     var progress = byId('infobar-program-progress');
     var container = byId('infobar-progress-info');
     if (!pin || !progress || !container) return;
-    var pinWidth = pin.offsetWidth || 18;
+    var pinWidth = (pin.querySelector('img') || pin).offsetWidth || 96;
     var totalWidth = Math.max(0, container.offsetWidth);
     var left = Math.floor(totalWidth * percent / 100);
     progress.style.width = left + 'px';
@@ -113,11 +117,12 @@
       btn.type = 'button';
       btn.className = 'focus-switch';
       btn.setAttribute('data-action', cfg.id);
+      var marked = cfg.id === 'favorite' && state.favoritesMarked;
       btn.innerHTML =
-        '<span class="focus-switch-icon">' + (ACTION_ICONS[cfg.icon] || '') + '</span>' +
+        '<span class="focus-switch-icon">' + actionIcon(cfg.icon, marked) + '</span>' +
         '<span class="focus-switch-label">' + cfg.label + '</span>';
       if (cfg.id === state.actionSelected) btn.classList.add('selected');
-      if (cfg.id === 'favorite' && state.favoritesMarked) btn.classList.add('marked');
+      if (marked) btn.classList.add('marked');
       wrap.appendChild(btn);
     }
   }
@@ -129,8 +134,13 @@
     if (liveBtn) liveBtn.classList.toggle('preview-hidden', !state.showLiveBtn);
     wrap.querySelectorAll('.focus-switch').forEach(function (btn) {
       var action = btn.getAttribute('data-action');
+      var marked = action === 'favorite' && state.favoritesMarked;
       btn.classList.toggle('selected', action === state.actionSelected);
-      btn.classList.toggle('marked', action === 'favorite' && state.favoritesMarked);
+      btn.classList.toggle('marked', marked);
+      var iconWrap = btn.querySelector('.focus-switch-icon');
+      if (iconWrap && action) {
+        iconWrap.innerHTML = actionIcon(action, marked);
+      }
     });
   }
 

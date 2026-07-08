@@ -6,6 +6,7 @@
   <title>NovoeTV Player UI</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/v4-tokens.css">
   <link rel="stylesheet" href="css/player-v4.css">
   <link rel="stylesheet" href="css/iptv-v4.css">
   <style>
@@ -42,8 +43,8 @@
       backdrop-filter: blur(2px);
     }
     #player-screen { z-index: 10; background: transparent; }
-    #controller-recycler { z-index: 20; }
-    #iptv-guide { z-index: 30; }
+    #controller-recycler-wrap { z-index: 20; }
+    #iptv-guide, #iptv-date-screen { z-index: 30; }
     #loading-bar, #aspect-bar { z-index: 15; }
     #playing-error-bar-sepg { z-index: 25; left: 50%; top: 30%; transform: translateX(-50%); width: auto; max-width: 900px; }
 
@@ -88,76 +89,79 @@
 
       <div id="player-controller" class="preview-hidden">
         <div id="controller-gradient" aria-hidden="true"></div>
-        <div id="controller-logo-badge">
-          <img id="controller-logo" src="../../assets/v4/img_logo_player.png" alt="NOVOE TV">
-        </div>
-        <div id="controller-panel">
-          <div id="controller-seek-block">
-            <div id="controller-center-title" class="preview-hidden"></div>
-            <div class="controller-seek-row">
-              <span id="infobar-program-time" class="seek-time">--:--</span>
-              <div id="infobar-progress-info">
-                <div id="infobar-program-total"></div>
-                <div id="infobar-program-progress"></div>
-                <div id="infobar-program-pin"></div>
-              </div>
-              <span id="infobar-program-duration" class="seek-time">--:--</span>
+        <div id="controller-bottom-stack">
+          <div id="controller-recycler-wrap" class="preview-hidden">
+            <div id="controller-recycler">
+              <ul id="controller-list"></ul>
             </div>
           </div>
-          <div id="controller-meta-row">
-            <div class="controller-meta-left">
-              <img id="player-channel-icon" src="../../assets/v4/img_default_channel.png" alt="">
-              <div class="controller-text-block">
-                <div id="infobar-channel-name"></div>
-                <div id="infobar-program-name"></div>
-                <div id="program-tag" class="preview-hidden"></div>
+          <div id="controller-logo-badge">
+            <img id="controller-logo" src="../../assets/v4/img_logo_player.png" alt="NOVOE TV">
+          </div>
+          <div id="controller-panel">
+            <div id="controller-seek-block">
+              <div id="controller-center-title" class="preview-hidden"></div>
+              <div class="controller-seek-row">
+                <span id="infobar-program-time" class="seek-time">--:--</span>
+                <div id="infobar-progress-info">
+                  <div id="infobar-program-total"></div>
+                  <div id="infobar-program-progress"></div>
+                  <div id="infobar-program-pin"><img src="../../assets/v4/icons/ic_seekbar_thumb.svg" alt=""></div>
+                </div>
+                <span id="infobar-program-duration" class="seek-time">--:--</span>
               </div>
             </div>
-            <div id="controller-actions"></div>
+            <div id="controller-meta-row">
+              <div class="controller-meta-left">
+                <img id="player-channel-icon" src="../../assets/v4/img_default_channel.png" alt="">
+                <div class="controller-text-block">
+                  <div id="infobar-channel-name"></div>
+                  <div id="infobar-program-name"></div>
+                  <div id="program-tag" class="preview-hidden"></div>
+                </div>
+              </div>
+              <div id="controller-actions"></div>
+            </div>
+          </div>
+          <div id="controller-footer">
+            <div class="footer-hint">
+              <img class="footer-hint-icon" src="../../assets/v4/icons/ic_footer_hint_back.svg" alt="">
+              <span>Просмотр</span>
+            </div>
+            <span id="footer-clock"></span>
           </div>
         </div>
-        <div id="controller-footer">
-          <div class="footer-hint">
-            <svg class="footer-hint-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M15 18l-6-6 6-6v12z"/></svg>
-            <span>Просмотр</span>
-          </div>
-          <span id="footer-clock"></span>
-        </div>
-      </div>
-
-      <div id="controller-recycler" class="preview-hidden">
-        <ul id="controller-list"></ul>
       </div>
       <div id="playing-error-bar-sepg" class="playing-error-bar screen_pad preview-hidden"></div>
     </div>
 
     <div id="iptv-guide" class="preview-hidden">
-      <div class="iptv-back-pane">
-        <button type="button" class="iptv-back-btn" id="iptv-back" aria-label="Назад">←</button>
-      </div>
-      <aside class="iptv-date-pane">
-        <div class="iptv-date-header">
-          <img id="iptv-header-logo" src="../../assets/v4/img_default_channel.png" alt="">
-          <span id="iptv-header-channel">NTV</span>
+      <aside class="iptv-category-pane">
+        <div class="iptv-category-header"><span>TV Каналы</span></div>
+        <div class="iptv-category-search">
+          <input type="text" id="iptv-category-search" placeholder="Поиск канала" readonly tabindex="-1">
         </div>
-        <ul id="iptv-date-list"></ul>
+        <ul id="iptv-category-list"></ul>
       </aside>
       <section class="iptv-channel-pane">
-        <div class="iptv-channel-header"><span>Каналы</span></div>
+        <div id="iptv-channel-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
+          <div class="iptv-spinner"></div>
+        </div>
         <ul id="iptv-channel-list"></ul>
       </section>
       <section class="iptv-program-pane">
-        <div class="iptv-channel-header"><span>Программа</span></div>
-        <div id="iptv-program-loading" class="preview-hidden">Загрузка…</div>
+        <div id="iptv-program-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
+          <div class="iptv-spinner"></div>
+        </div>
         <div id="iptv-program-empty" class="preview-hidden">Программа на выбранный день недоступна!</div>
         <ul id="iptv-program-list"></ul>
       </section>
-      <aside class="iptv-detail-pane">
+      <aside class="iptv-detail-pane preview-hidden">
         <img id="iptv-detail-poster" src="../../mocks/channel-poster-ntv.png" alt="">
         <div class="iptv-detail-actions">
           <button type="button" id="iptv-detail-stream">Смотреть</button>
           <button type="button" class="focus-switch" id="iptv-detail-watch" data-action="watch">
-            <span class="focus-switch-icon"><svg viewBox="0 0 24 24"><path fill="#fff" d="M12 4C7 4 2.7 7.1 1 12c1.7 4.9 6 8 11 8s9.3-3.1 11-8c-1.7-4.9-6-8-11-8zm0 13c-2.8 0-5-2.2-5-5s2.2-5 5-5 5 2.2 5 5-2.2 5-5 5z"/></svg></span>
+            <span class="focus-switch-icon"><img class="action-icon" src="../../assets/v4/icons/ic_watch.svg" alt=""></span>
             <span class="focus-switch-label">Буду смотреть</span>
           </button>
         </div>
@@ -166,6 +170,19 @@
         <p id="iptv-detail-description"></p>
         <span id="iptv-detail-rating"></span>
       </aside>
+    </div>
+
+    <div id="iptv-date-screen" class="preview-hidden">
+      <button type="button" class="iptv-back-btn" id="iptv-date-back" aria-label="Назад">
+        <img src="../../assets/v4/icons/ic_iptv_schedule_back_arrow.svg" alt="">
+      </button>
+      <div class="iptv-date-content">
+        <div class="iptv-date-header">
+          <img id="iptv-date-header-logo" src="../../assets/v4/img_default_channel.png" alt="">
+          <span id="iptv-date-header-channel">NTV</span>
+        </div>
+        <ul id="iptv-date-list"></ul>
+      </div>
     </div>
 
   </div>
@@ -209,14 +226,18 @@
       <label>Guide:</label>
       <button type="button" data-epg-state="demo" class="active">Normal</button>
       <button type="button" data-epg-state="loading">Loading</button>
+      <button type="button" data-epg-state="channel-loading">Ch load</button>
       <button type="button" data-epg-state="empty">Empty</button>
       <label>|</label>
+      <button type="button" data-epg-focus="categories">категории</button>
       <button type="button" data-epg-focus="days">даты</button>
       <button type="button" data-epg-focus="channels">каналы</button>
       <button type="button" data-epg-focus="programs" class="active">программы</button>
       <button type="button" data-epg-focus="detail">detail</button>
       <button type="button" data-action="epg-up">▲</button>
       <button type="button" data-action="epg-down">▼</button>
+      <button type="button" data-action="epg-left">◀ даты</button>
+      <button type="button" data-action="epg-right">guide ▶</button>
     </div>
   </div>
 

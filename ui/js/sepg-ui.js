@@ -31,7 +31,7 @@
         '<span class="recycler-time">' + (p.time || '') + '</span>' +
         '<span class="recycler-name">' + (p.name || '') + '</span>' +
         (p.hasPlay || i === selected
-          ? '<svg class="recycler-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>'
+          ? '<img class="recycler-play" src="../../assets/v4/icons/ic_play_program.svg" alt="">'
           : '');
       ul.appendChild(li);
     }
@@ -49,13 +49,13 @@
       for (var i = 0; i < programs.length; i++) {
         if (programs[i].selected) selected = i;
       }
-      setVisible('controller-recycler', true);
+      setVisible('controller-recycler-wrap', true);
       setVisible('playing-error-bar-sepg', false);
       render(programs);
     },
 
     applyLoadingDemo: function () {
-      setVisible('controller-recycler', true);
+      setVisible('controller-recycler-wrap', true);
       setVisible('playing-error-bar-sepg', false);
       var ul = byId('controller-list');
       if (!ul) return;
@@ -63,7 +63,7 @@
     },
 
     applyEmptyDemo: function () {
-      setVisible('controller-recycler', true);
+      setVisible('controller-recycler-wrap', true);
       setVisible('playing-error-bar-sepg', false);
       render([]);
     },
@@ -78,7 +78,7 @@
     },
 
     hide: function () {
-      setVisible('controller-recycler', false);
+      setVisible('controller-recycler-wrap', false);
       setVisible('playing-error-bar-sepg', false);
     },
 

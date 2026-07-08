@@ -27,6 +27,16 @@
     "streamError": "Ошибка открытия архива. Повторный запрос..."
   },
   "epg": {
+    "categories": [
+      "Все каналы", "Избранное", "Эфирные", "Кино", "Детские", "Спорт", "Музыка"
+    ],
+    "selectedCategoryIndex": 0,
+    "channels": [
+      { "number": "013", "name": "NTV", "icon": "../../mocks/channel-poster-ntv.png", "epg": "Сёстры, 1-2 серия", "time": "20:00" },
+      { "number": "001", "name": "Первый", "icon": "../../assets/v4/img_default_channel.png", "epg": "Новости", "time": "21:00" },
+      { "number": "002", "name": "Россия 1", "icon": "../../assets/v4/img_default_channel.png", "epg": "Вечерний эфир", "time": "20:30" },
+      { "number": "006", "name": "СТС", "icon": "../../assets/v4/img_default_channel.png", "epg": "Шоу", "time": "19:45" }
+    ],
     "category": "Все каналы",
     "channelName": "013. NTV",
     "channelDescription": "Общероссийский телеканал",
