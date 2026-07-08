@@ -1,0 +1,350 @@
+/* NovoeTV 4.000 IPTV guide + Mini program list */
+
+#controller-recycler {
+  position: absolute;
+  left: 21px;
+  right: 21px;
+  bottom: 440px;
+  max-height: 360px;
+  overflow: hidden;
+  z-index: 13;
+  pointer-events: auto;
+}
+
+#controller-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0;
+}
+
+#controller-list li {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 72px;
+  padding: 0 24px;
+  margin-bottom: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 30px;
+}
+
+#controller-list li.selected {
+  background: #fff;
+  color: #000;
+}
+
+#controller-list li .recycler-time {
+  flex: 0 0 100px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+#controller-list li .recycler-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#controller-list li .recycler-play {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+#controller-list li.loading-item {
+  justify-content: center;
+  background: transparent;
+  color: #86dbff;
+  font-size: 26px;
+}
+
+#controller-list li.empty-item {
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 26px;
+}
+
+/* —— Full IPTV guide (4 panes) —— */
+
+#iptv-guide {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 100px 280px 360px 620px 1fr;
+  background: #010e21;
+  color: #fff;
+}
+
+#iptv-guide.preview-hidden { display: none !important; }
+
+.iptv-back-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #051a31;
+}
+
+.iptv-back-btn {
+  width: 51px;
+  height: 43px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.iptv-back-btn:focus,
+.iptv-back-btn.focused {
+  outline: 2px solid #86dbff;
+  background: rgba(134, 219, 255, 0.15);
+}
+
+.iptv-date-pane,
+.iptv-channel-pane,
+.iptv-program-pane {
+  background: #051a31;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.iptv-date-header,
+.iptv-channel-header {
+  height: 116px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.iptv-date-header img,
+.iptv-channel-header img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #1a2a3a;
+}
+
+.iptv-date-header span,
+.iptv-channel-header span {
+  font-size: 28px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#iptv-date-list,
+#iptv-channel-list,
+#iptv-program-list {
+  list-style: none;
+  margin: 0;
+  padding: 12px 0;
+  overflow: auto;
+  flex: 1;
+}
+
+#iptv-date-list li,
+#iptv-channel-list li,
+#iptv-program-list li {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#iptv-date-list li.selected,
+#iptv-channel-list li.selected {
+  color: #86dbff;
+  background: rgba(134, 219, 255, 0.08);
+}
+
+#iptv-date-list li.focused,
+#iptv-channel-list li.focused,
+#iptv-program-list li.focused {
+  box-shadow: inset 0 0 0 2px #86dbff;
+}
+
+#iptv-program-list li.selected {
+  background: #fff;
+  color: #000;
+}
+
+#iptv-program-list li.current .prog-bar {
+  background: #3e8a22;
+}
+
+#iptv-program-list li .prog-bar {
+  width: 6px;
+  align-self: stretch;
+  background: transparent;
+  flex-shrink: 0;
+  margin: -12px 0 -12px -24px;
+}
+
+#iptv-program-list li .prog-play {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+
+#iptv-program-list li .prog-time {
+  flex: 0 0 90px;
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+#iptv-program-list li .prog-name {
+  flex: 1;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+#iptv-date-list li {
+  font-size: 28px;
+}
+
+#iptv-date-list li.today::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #04cf23;
+  flex-shrink: 0;
+}
+
+#iptv-channel-list li img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #1a2a3a;
+  flex-shrink: 0;
+}
+
+#iptv-channel-list li .ch-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+#iptv-channel-list li .ch-name {
+  font-size: 32px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#iptv-channel-list li .ch-epg {
+  font-size: 24px;
+  color: #d9d9d9;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.iptv-program-pane {
+  position: relative;
+}
+
+#iptv-program-empty,
+#iptv-program-loading {
+  position: absolute;
+  inset: 116px 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: rgba(255, 255, 255, 0.75);
+  background: #051a31;
+  z-index: 2;
+}
+
+#iptv-program-empty.preview-hidden,
+#iptv-program-loading.preview-hidden {
+  display: none !important;
+}
+
+.iptv-detail-pane {
+  background: #304154;
+  padding: 40px 36px;
+  overflow: auto;
+}
+
+#iptv-detail-poster {
+  width: 242px;
+  height: 367px;
+  object-fit: cover;
+  background: #1a2a3a;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.iptv-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+#iptv-detail-stream {
+  height: 72px;
+  min-width: 180px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 8px;
+  background: #051a31;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+#iptv-detail-stream.focused,
+#iptv-detail-stream:focus {
+  outline: 2px solid #86dbff;
+  color: #86dbff;
+}
+
+#iptv-detail-title {
+  font-size: 40px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+#iptv-detail-description {
+  font-size: 28px;
+  line-height: 1.4;
+  margin: 0 0 16px;
+  opacity: 0.92;
+}
+
+#iptv-detail-rating {
+  font-size: 26px;
+  opacity: 0.8;
+}
+
+#iptv-detail-time {
+  font-size: 26px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+/* Hide legacy EPG chrome when using v4 guide */
+#epg-screen.legacy-hidden,
+#sepg-screen.legacy-hidden {
+  display: none !important;
+}

@@ -150,7 +150,9 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           mockData = data;
+          global.mockData = data;
           global.__EPG_MOCK__ = data.epg;
+          global.__PLAYER_MOCK_SEPG__ = data.sepg;
           return data;
         })
         .catch(function () {
@@ -162,30 +164,36 @@
     showScreen: function (name) {
       currentScreen = name;
       var showVideo = name === 'player' || name === 'sepg' || name === 'epg';
-      var showPlayerLayer = name === 'player';
-      var showSepg = name === 'sepg';
-      var showEpg = name === 'epg';
+      var showPlayerLayer = name === 'player' || name === 'sepg';
+      var showGuide = name === 'epg';
 
       setLayerActive('mock-video-bg', showVideo);
-      setDimOverlay(name);
+      setDimOverlay(name === 'sepg' ? 'sepg' : (name === 'epg' ? 'epg' : null));
       setLayerActive('player-screen', showPlayerLayer);
-      setLayerActive('sepg-screen', showSepg);
-      setLayerActive('epg-screen', showEpg);
+      setVisible('iptv-guide', showGuide);
       setPanelSection(name);
 
-      if (name !== 'player') {
+      if (name !== 'player' && name !== 'sepg') {
         PlayerUI.hideAspectPad();
         PlayerUI.showLoading(false);
       }
 
       if (name === 'player') {
+        SepgUI.hide();
+        EpgUI.hide();
         AppPreview.applyPlayerState(currentPlayerState);
         setInfobarVisible(true);
       } else if (name === 'sepg') {
-        setInfobarVisible(false);
+        EpgUI.hide();
+        PlayerUI.applyPlayingDemo();
+        setInfobarVisible(true);
         PlayerUI.showError(null);
         SepgUI.applyDemo();
       } else if (name === 'epg') {
+        SepgUI.hide();
+        PlayerUI.showInfobar(false);
+        PlayerUI.showLoading(false);
+        PlayerUI.hideAspectPad();
         EpgUI.applyDemo();
       }
     },
@@ -304,6 +312,7 @@
         if (e.target.closest('[data-action="epg-right"]')) AppPreview.setEpgFocus('programs');
         if (e.target.closest('[data-action="sepg-left"]')) AppPreview.sepgShift(-1);
         if (e.target.closest('[data-action="sepg-right"]')) AppPreview.sepgShift(1);
+        if (e.target.id === 'iptv-back') AppPreview.showScreen('player');
       });
 
       var slider = byId('progress-slider');
