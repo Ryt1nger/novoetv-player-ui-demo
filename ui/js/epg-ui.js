@@ -12,6 +12,7 @@
     programIndex: 0,
     focus: 'programs',
     dateScreenOpen: false,
+    guideMode: 'category',
     hidden: true
   };
 
@@ -33,11 +34,41 @@
 
   function defaultChannels() {
     return [
-      { number: '013', name: 'NTV', icon: '../../mocks/channel-poster-ntv.png', epg: 'Сёстры, 1-2 серия', time: '20:00' },
-      { number: '001', name: 'Первый', icon: '../../assets/v4/img_default_channel.png', epg: 'Новости', time: '21:00' },
-      { number: '002', name: 'Россия 1', icon: '../../assets/v4/img_default_channel.png', epg: 'Вечерний эфир', time: '20:30' },
-      { number: '006', name: 'СТС', icon: '../../assets/v4/img_default_channel.png', epg: 'Шоу', time: '19:45' }
+      { number: '277', name: 'Матч! ТВ HD', icon: '../../mocks/channel-poster-match.svg', epg: 'Fight Nights', time: '21:00' },
+      { number: '001', name: 'Первый', icon: '../../assets/v4/img_default_channel.png', epg: 'Время', time: '21:00' },
+      { number: '002', name: 'Россия 1', icon: '../../assets/v4/img_default_channel.png', epg: 'Вечерний эфир', time: '20:30' }
     ];
+  }
+
+  function defaultChannelGuideDays() {
+    return [
+      'Чт, 2 июля', 'Пт, 3 июля', 'Сб, 4 июля', 'Вс, 5 июля',
+      'Пн, 6 июля', 'Вт, 7 июля', 'Сегодня', 'Чт, 9 июля'
+    ];
+  }
+
+  function defaultChannelGuidePrograms() {
+    return [
+      { time: '12:30', name: 'Новости', past: true },
+      { time: '13:00', name: 'Футбол. Обзор', past: true, hasRecord: true },
+      { time: '18:55', name: 'Футбол. Winline Суперсерия. Зенит (Россия) - Нефтчи (Узбекистан)...', past: true, hasRecord: true },
+      { time: '21:00', name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска', hasRecord: true, activeRecord: true,
+        details: {
+          timestart: '21:00',
+          name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска',
+          description: 'Трансляция турнира смешанных единоборств из Каспийска.',
+          rating: '6+',
+          poster: '../../mocks/program-poster-fight-nights.svg'
+        }
+      },
+      { time: '23:30', name: 'Итоги дня', future: true }
+    ];
+  }
+
+  function syncGuideModeClass() {
+    var guide = byId('iptv-guide');
+    if (!guide) return;
+    guide.classList.toggle('channel-first', state.guideMode === 'channel');
   }
 
   function setPaneLoading(id, visible) {
@@ -81,6 +112,32 @@
     }
   }
 
+  function renderInlineDays() {
+    var ul = byId('iptv-inline-date-list');
+    if (!ul) return;
+    ul.innerHTML = '';
+    for (var i = 0; i < state.days.length; i++) {
+      var li = document.createElement('li');
+      var label = state.days[i];
+      if (label.indexOf('Сегодня') === 0) li.classList.add('today');
+      if (i === state.dayIndex) li.classList.add('selected');
+      if (state.focus === 'days' && i === state.dayIndex && state.guideMode === 'channel') {
+        li.classList.add('focused');
+      }
+      li.textContent = label.replace(/^Сегодня,\s*/, 'Сегодня');
+      ul.appendChild(li);
+    }
+    var back = byId('iptv-inline-back');
+    if (back) back.classList.toggle('focused', state.focus === 'days' && state.guideMode === 'channel');
+  }
+
+  function syncInlineChannelHeader() {
+    var ch = state.channels[state.channelIndex] || state.channels[0] || {};
+    var logo = byId('iptv-inline-channel-logo');
+    var name = byId('iptv-inline-channel-name');
+    if (logo) logo.src = ch.icon || '../../mocks/channel-poster-match.svg';
+    if (name) name.textContent = ch.name || 'Матч! ТВ HD';
+  }
   function renderDays() {
     var ul = byId('iptv-date-list');
     if (!ul) return;
@@ -140,6 +197,7 @@
   function renderDetail() {
     var p = state.programs[state.programIndex] || {};
     var d = p.details || (global.__EPG_MOCK__ && global.__EPG_MOCK__.programDetails) || {};
+    var ch = state.channels[state.channelIndex] || state.channels[0] || {};
     var title = byId('iptv-detail-title');
     var desc = byId('iptv-detail-description');
     var rating = byId('iptv-detail-rating');
@@ -149,7 +207,9 @@
     if (desc) desc.textContent = d.description || d.subtitle || '';
     if (rating) rating.textContent = d.rating || '';
     if (time) time.textContent = d.timestart || (p.time || '');
-    if (poster) poster.src = '../../mocks/channel-poster-ntv.png';
+    if (poster) {
+      poster.src = d.poster || ch.poster || ch.icon || '../../mocks/channel-poster-match.svg';
+    }
 
     var stream = byId('iptv-detail-stream');
     var watch = byId('iptv-detail-watch');
@@ -167,9 +227,12 @@
 
   function renderAll() {
     syncGuideVisibility();
+    syncGuideModeClass();
+    syncInlineChannelHeader();
     renderCategories();
     syncHeader();
     renderDays();
+    renderInlineDays();
     renderChannels();
     renderPrograms();
     renderDetail();
@@ -179,6 +242,7 @@
   var EpgUI = {
     applyDemo: function () {
       var mock = global.__EPG_MOCK__ || {};
+      state.guideMode = 'category';
       state.categories = mock.categories || [
         'Все каналы', 'Избранное', 'Эфирные', 'Кино', 'Детские', 'Спорт', 'Музыка'
       ];
@@ -195,6 +259,24 @@
       state.focus = mock.focusedColumn === 'days' ? 'days' : 'programs';
       state.dateScreenOpen = state.focus === 'days';
       state.hidden = false;
+      setPaneLoading('iptv-program-loading', false);
+      setPaneLoading('iptv-channel-loading', false);
+      setVisible('iptv-program-empty', false);
+      renderAll();
+    },
+
+    applyChannelGuideDemo: function () {
+      var mock = (global.__EPG_MOCK__ && global.__EPG_MOCK__.channelGuide) || {};
+      state.guideMode = 'channel';
+      state.dateScreenOpen = false;
+      state.hidden = false;
+      state.channels = mock.channels || defaultChannels();
+      state.channelIndex = mock.channelIndex || 0;
+      state.days = mock.days || defaultChannelGuideDays();
+      state.dayIndex = mock.selectedDayIndex != null ? mock.selectedDayIndex : 6;
+      state.programs = mock.programs || defaultChannelGuidePrograms();
+      state.programIndex = mock.selectedProgramIndex != null ? mock.selectedProgramIndex : 2;
+      state.focus = mock.focusedColumn || 'programs';
       setPaneLoading('iptv-program-loading', false);
       setPaneLoading('iptv-channel-loading', false);
       setVisible('iptv-program-empty', false);
@@ -251,11 +333,17 @@
 
     setFocusedColumn: function (column) {
       if (column === 'categories') {
+        state.guideMode = 'category';
         state.dateScreenOpen = false;
         state.focus = 'categories';
       } else if (column === 'days') {
-        state.dateScreenOpen = true;
-        state.focus = 'days';
+        if (state.guideMode === 'channel') {
+          state.dateScreenOpen = false;
+          state.focus = 'days';
+        } else {
+          state.dateScreenOpen = true;
+          state.focus = 'days';
+        }
       } else if (column === 'channels') {
         state.dateScreenOpen = false;
         state.focus = 'channels';
@@ -274,6 +362,7 @@
         state.categoryIndex = Math.max(0, Math.min(state.categories.length - 1, state.categoryIndex + delta));
       } else if (state.focus === 'days') {
         state.dayIndex = Math.max(0, Math.min(state.days.length - 1, state.dayIndex + delta));
+        if (state.guideMode === 'channel') syncInlineChannelHeader();
       } else if (state.focus === 'channels') {
         state.channelIndex = Math.max(0, Math.min(state.channels.length - 1, state.channelIndex + delta));
         syncHeader();

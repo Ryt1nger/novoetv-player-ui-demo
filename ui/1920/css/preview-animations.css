@@ -52,10 +52,74 @@ html.preview-animated #epg-screen.preview-active {
 html.preview-animated #tv-infobar,
 html.preview-animated #tv-fwdbar,
 html.preview-animated #loading-bar,
-html.preview-animated #aspect-bar {
+html.preview-animated #aspect-bar,
+html.preview-animated #player-controller,
+html.preview-animated #controller-recycler-wrap,
+html.preview-animated #iptv-guide,
+html.preview-animated #iptv-date-screen,
+html.preview-animated #player-toast,
+html.preview-animated #program-info-overlay {
   transition:
     opacity var(--preview-duration) ease,
-    transform var(--preview-duration) var(--preview-ease);
+    transform var(--preview-duration) var(--preview-ease),
+    visibility var(--preview-duration) ease;
+}
+
+html.preview-animated #player-controller.preview-hidden {
+  opacity: 0;
+  transform: translateY(36px);
+  display: block !important;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+html.preview-animated #player-controller:not(.preview-hidden) {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+html.preview-animated #controller-recycler-wrap.preview-hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  display: block !important;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+html.preview-animated #controller-recycler-wrap:not(.preview-hidden) {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+html.preview-animated #iptv-guide.preview-hidden,
+html.preview-animated #iptv-date-screen.preview-hidden {
+  opacity: 0;
+  transform: translateY(12px);
+  display: block !important;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+html.preview-animated #iptv-guide:not(.preview-hidden),
+html.preview-animated #iptv-date-screen:not(.preview-hidden) {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+html.preview-animated #player-toast.preview-hidden,
+html.preview-animated #program-info-overlay.preview-hidden {
+  opacity: 0;
+  transform: translateX(12px);
+}
+
+html.preview-animated #player-toast:not(.preview-hidden),
+html.preview-animated #program-info-overlay:not(.preview-hidden) {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 html.preview-animated #tv-infobar.preview-hidden,

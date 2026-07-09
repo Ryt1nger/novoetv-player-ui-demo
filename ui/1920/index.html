@@ -9,12 +9,16 @@
   <link rel="stylesheet" href="css/v4-tokens.css">
   <link rel="stylesheet" href="css/player-v4.css">
   <link rel="stylesheet" href="css/iptv-v4.css">
+  <link rel="stylesheet" href="css/preview-animations.css">
   <style>
     #mock-video-bg {
       position: absolute;
       inset: 0;
       z-index: 0;
       background: #000 url('../../assets/img/back.jpg') center/cover no-repeat;
+    }
+    html.audit-mode #mock-video-bg {
+      /* per-shot emu frame set in audit-all.mjs */
     }
     #preview-dim-overlay {
       position: absolute;
@@ -67,8 +71,12 @@
   </style>
   <script>
     document.documentElement.classList.add('browser-preview');
-    if (new URLSearchParams(location.search).has('audit')) {
+    var _params = new URLSearchParams(location.search);
+    if (_params.has('audit')) {
       document.documentElement.classList.add('audit-mode');
+    }
+    if (_params.has('animate') || (!_params.has('audit') && !_params.has('noanimate'))) {
+      document.documentElement.classList.add('preview-animated');
     }
   </script>
 </head>
@@ -86,6 +94,7 @@
 
     <div id="player-screen" class="screen">
       <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden"></div>
+      <div id="player-toast" class="player-toast preview-hidden" role="status"></div>
 
       <div id="player-controller" class="preview-hidden">
         <div id="controller-gradient" aria-hidden="true"></div>
@@ -112,6 +121,10 @@
               </div>
             </div>
             <div id="controller-meta-row">
+              <div id="program-info-overlay" class="program-info-overlay preview-hidden">
+                <span class="program-info-accent" aria-hidden="true"></span>
+                <p id="program-info-text"></p>
+              </div>
               <div class="controller-meta-left">
                 <img id="player-channel-icon" src="../../assets/v4/img_default_channel.png" alt="">
                 <div class="controller-text-block">
@@ -136,20 +149,30 @@
     </div>
 
     <div id="iptv-guide" class="preview-hidden">
-      <aside class="iptv-category-pane">
+      <aside class="iptv-inline-dates-pane preview-hidden">
+        <button type="button" class="iptv-inline-back" id="iptv-inline-back" aria-label="Назад">
+          <img src="../../assets/v4/icons/ic_iptv_schedule_back_arrow.svg" alt="">
+        </button>
+        <div class="iptv-inline-channel-header">
+          <img id="iptv-inline-channel-logo" src="../../mocks/channel-poster-match.svg" alt="">
+          <span id="iptv-inline-channel-name">Матч! ТВ HD</span>
+        </div>
+        <ul id="iptv-inline-date-list"></ul>
+      </aside>
+      <aside class="iptv-category-pane" id="iptv-category-pane">
         <div class="iptv-category-header"><span>TV Каналы</span></div>
         <div class="iptv-category-search">
           <input type="text" id="iptv-category-search" placeholder="Поиск канала" readonly tabindex="-1">
         </div>
         <ul id="iptv-category-list"></ul>
       </aside>
-      <section class="iptv-channel-pane">
+      <section class="iptv-channel-pane" id="iptv-channel-pane">
         <div id="iptv-channel-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
           <div class="iptv-spinner"></div>
         </div>
         <ul id="iptv-channel-list"></ul>
       </section>
-      <section class="iptv-program-pane">
+      <section class="iptv-program-pane" id="iptv-program-pane">
         <div id="iptv-program-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
           <div class="iptv-spinner"></div>
         </div>
@@ -205,6 +228,9 @@
       <button type="button" data-player-state="error">Error</button>
       <button type="button" data-player-state="archive">Archive</button>
       <button type="button" data-player-state="fav">Fav ✓</button>
+      <button type="button" data-player-state="program-info">Program info</button>
+      <button type="button" data-player-state="mini-list">Mini list</button>
+      <button type="button" data-player-state="channel-guide">Channel EPG</button>
       <label>| Focus:</label>
       <button type="button" data-action-focus="program">Программа</button>
       <button type="button" data-action-focus="watch" class="active">Смотреть</button>
@@ -224,6 +250,7 @@
 
     <div class="dev-panel-row preview-hidden" data-panel="epg">
       <label>Guide:</label>
+      <button type="button" data-epg-state="channel-guide">Channel EPG</button>
       <button type="button" data-epg-state="demo" class="active">Normal</button>
       <button type="button" data-epg-state="loading">Loading</button>
       <button type="button" data-epg-state="channel-loading">Ch load</button>

@@ -19,6 +19,13 @@
 
   var aspectPadTimer = null;
   var clockTimer = null;
+  var toastTimer = null;
+
+  var PROGRAM_INFO_DEMO =
+    'Союзники по НАТО поумерили ожидания от саммита после гневных тирад Трампа. ' +
+    'Президент США выступил с резкой критикой партнёров по альянсу.';
+
+  var ERROR_MSG_DEFAULT = 'Не удалось загрузить трансляцию. Попробуйте позже';
 
   var MODE_LABELS = {
     live: 'Прямой эфир',
@@ -27,11 +34,20 @@
     onAir: 'Эфир'
   };
 
+  var DEMO_CHANNEL = {
+    name: 'Матч! ТВ HD',
+    icon: '../../mocks/channel-poster-match.svg',
+    program_name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска'
+  };
+
   var state = {
-    actionSelected: 'watch',
+    actionSelected: '',
     favoritesMarked: false,
+    watchMarked: false,
     isLiveTv: true,
-    showLiveBtn: false
+    showLiveBtn: false,
+    isPaused: false,
+    seekThumbPlay: false
   };
 
   function byId(id) { return document.getElementById(id); }
@@ -48,7 +64,7 @@
     }
   }
 
-  function formatSeconds(seconds, longFormat) {
+  function formatSeconds(seconds, longFormat, compactHour) {
     seconds = parseInt(seconds, 10);
     if (isNaN(seconds)) seconds = 0;
     var timeHour = Math.floor(seconds / 3600);
@@ -56,23 +72,67 @@
     var timeSecond = Math.floor(seconds % 60);
     var timeStr = '';
 
-    if (timeHour === 0) timeStr += '00';
-    else if (timeHour < 10) timeStr += '0' + timeHour;
-    else timeStr += timeHour;
-
-    timeStr += ':';
-    if (timeMinute === 0) timeStr += '00';
-    else if (timeMinute < 10) timeStr += '0' + timeMinute;
-    else timeStr += timeMinute;
-
     if (longFormat) {
+      if (compactHour && timeHour > 0) {
+        timeStr += timeHour;
+      } else if (timeHour === 0) {
+        timeStr += '00';
+      } else if (timeHour < 10) {
+        timeStr += '0' + timeHour;
+      } else {
+        timeStr += timeHour;
+      }
+      timeStr += ':';
+      if (timeMinute === 0) timeStr += '00';
+      else if (timeMinute < 10) timeStr += '0' + timeMinute;
+      else timeStr += timeMinute;
       timeStr += ':';
       if (timeSecond === 0) timeStr += '00';
       else if (timeSecond < 10) timeStr += '0' + timeSecond;
       else timeStr += timeSecond;
+      return timeStr;
     }
 
+    if (timeHour === 0) timeStr += '00';
+    else if (timeHour < 10) timeStr += '0' + timeHour;
+    else timeStr += timeHour;
+    timeStr += ':';
+    if (timeMinute === 0) timeStr += '00';
+    else if (timeMinute < 10) timeStr += '0' + timeMinute;
+    else timeStr += timeMinute;
     return timeStr;
+  }
+
+  function setProgramTag(kind) {
+    var tagEl = byId('program-tag');
+    if (!tagEl) return;
+    tagEl.classList.remove('tag-live', 'tag-archive', 'tag-video');
+    if (!kind) {
+      tagEl.textContent = '';
+      setVisible('program-tag', false);
+      return;
+    }
+    if (kind === 'live') {
+      tagEl.textContent = MODE_LABELS.live;
+      tagEl.classList.add('tag-live');
+    } else if (kind === 'archive') {
+      tagEl.textContent = MODE_LABELS.archive;
+      tagEl.classList.add('tag-archive');
+    } else if (kind === 'video') {
+      tagEl.textContent = MODE_LABELS.video;
+      tagEl.classList.add('tag-video');
+    }
+    setVisible('program-tag', true);
+  }
+
+  function setSeekThumbPlay(playIcon) {
+    state.seekThumbPlay = !!playIcon;
+    var pin = byId('infobar-program-pin');
+    var img = pin && pin.querySelector('img');
+    if (!img) return;
+    img.src = playIcon
+      ? ICON_BASE + 'ic_play_program.svg'
+      : ICON_BASE + 'ic_seekbar_thumb.svg';
   }
 
   function formatClock(d) {
@@ -117,7 +177,8 @@
       btn.type = 'button';
       btn.className = 'focus-switch';
       btn.setAttribute('data-action', cfg.id);
-      var marked = cfg.id === 'favorite' && state.favoritesMarked;
+      var marked = (cfg.id === 'favorite' && state.favoritesMarked) ||
+        (cfg.id === 'watch' && state.watchMarked);
       btn.innerHTML =
         '<span class="focus-switch-icon">' + actionIcon(cfg.icon, marked) + '</span>' +
         '<span class="focus-switch-label">' + cfg.label + '</span>';
@@ -134,7 +195,8 @@
     if (liveBtn) liveBtn.classList.toggle('preview-hidden', !state.showLiveBtn);
     wrap.querySelectorAll('.focus-switch').forEach(function (btn) {
       var action = btn.getAttribute('data-action');
-      var marked = action === 'favorite' && state.favoritesMarked;
+      var marked = (action === 'favorite' && state.favoritesMarked) ||
+        (action === 'watch' && state.watchMarked);
       btn.classList.toggle('selected', action === state.actionSelected);
       btn.classList.toggle('marked', marked);
       var iconWrap = btn.querySelector('.focus-switch-icon');
@@ -184,12 +246,57 @@
     setArchiveControls: function () {
       state.isLiveTv = false;
       state.showLiveBtn = true;
+      state.isPaused = false;
+      setProgramTag('archive');
+      this.hideAspectPad();
+      setSeekThumbPlay(false);
       syncActionButtons();
     },
 
-    setFavoritesMarked: function (marked) {
+    setProgramTag: setProgramTag,
+
+    setFavoritesMarked: function (marked, silent) {
       state.favoritesMarked = !!marked;
       syncActionButtons();
+      if (state.favoritesMarked && !silent) {
+        this.showToast('Передача добавлена в папку «Избранное»');
+      }
+    },
+
+    setWatchMarked: function (marked, silent) {
+      state.watchMarked = !!marked;
+      syncActionButtons();
+      if (state.watchMarked && !silent) {
+        this.showToast('Передача добавлена в папку «Буду смотреть»');
+      }
+    },
+
+    showToast: function (message, ms) {
+      var el = byId('player-toast');
+      if (!el) return;
+      if (!message) {
+        setVisible('player-toast', false);
+        return;
+      }
+      el.textContent = message;
+      setVisible('player-toast', true);
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        setVisible('player-toast', false);
+        toastTimer = null;
+      }, ms || 4500);
+    },
+
+    showProgramInfo: function (text) {
+      var box = byId('program-info-overlay');
+      var p = byId('program-info-text');
+      if (!box || !p) return;
+      p.textContent = text || PROGRAM_INFO_DEMO;
+      setVisible('program-info-overlay', true);
+    },
+
+    hideProgramInfo: function () {
+      setVisible('program-info-overlay', false);
     },
 
     setChannel: function (channel) {
@@ -202,13 +309,13 @@
       var tagEl = byId('program-tag');
       if (nameEl) nameEl.textContent = channel.name || '';
       if (programEl) programEl.textContent = channel.program_name || '';
-      if (tagEl) {
-        if (channel.tag) {
+      if (channel.tag) {
+        if (channel.tag === MODE_LABELS.live) setProgramTag('live');
+        else if (channel.tag === MODE_LABELS.archive) setProgramTag('archive');
+        else if (channel.tag === MODE_LABELS.video) setProgramTag('video');
+        else {
           tagEl.textContent = channel.tag;
           setVisible('program-tag', true);
-        } else {
-          tagEl.textContent = '';
-          setVisible('program-tag', false);
         }
       }
     },
@@ -218,10 +325,10 @@
       var te = byId('infobar-program-time');
       var de = byId('infobar-program-duration');
       if (currentSec !== undefined && te) {
-        te.textContent = formatSeconds(currentSec, true);
+        te.textContent = formatSeconds(currentSec, true, true);
       }
       if (durationSec !== undefined && de) {
-        de.textContent = formatSeconds(durationSec, true);
+        de.textContent = formatSeconds(durationSec, true, true);
       }
     },
 
@@ -248,12 +355,30 @@
       if (message) {
         bar.textContent = message;
         setVisible('playing-error-bar', true);
-        setVisible('player-controller', false);
         setVisible('loading-bar', false);
         this.hideAspectPad();
+        setProgramTag(null);
+        state.showLiveBtn = true;
+        state.isPaused = false;
+        setSeekThumbPlay(true);
+        this.setProgress(0, 0, 0);
+        var te = byId('infobar-program-time');
+        var de = byId('infobar-program-duration');
+        if (te) te.textContent = '00:00';
+        if (de) de.textContent = '00:00';
+        syncActionButtons();
+        this.showInfobar(true);
       } else {
         setVisible('playing-error-bar', false);
+        setSeekThumbPlay(false);
       }
+    },
+
+    setPaused: function (paused) {
+      state.isPaused = !!paused;
+      var screen = byId('player-screen');
+      if (screen) screen.classList.toggle('is-paused', state.isPaused);
+      setSeekThumbPlay(false);
     },
 
     hideAspectPad: function () {
@@ -282,33 +407,53 @@
 
     applyLiveDemo: function () {
       state.favoritesMarked = false;
-      state.actionSelected = 'watch';
+      state.watchMarked = false;
+      state.actionSelected = '';
       state.isLiveTv = true;
       state.showLiveBtn = false;
+      state.isPaused = false;
       this.buildActions();
-      this.setChannel({
-        name: 'NTV',
-        icon: PlayerUI.DEMO_CHANNEL_ICON,
-        program_name: 'Сёстры, 1-2 серия'
-      });
+      this.setChannel(DEMO_CHANNEL);
       this.setLiveTv(true);
-      this.setProgress(0.07, 1, 1500);
-      this.showAspectPad(MODE_LABELS.live);
+      setProgramTag('live');
+      this.setProgress(6.2, 671, 10800);
+      this.hideAspectPad();
+      this.hideProgramInfo();
+      this.showToast(null);
       this.showError(null);
       this.setVodMode(false);
       this.showInfobar(true);
       this.showLoading(true);
+      setSeekThumbPlay(false);
       startClock();
     },
 
     applyPausedDemo: function () {
-      this.applyLiveDemo();
-      this.showLoading(false);
+      this.applyPlayingDemo();
+      this.setPaused(true);
     },
 
     applyPlayingDemo: function () {
-      this.applyLiveDemo();
+      state.favoritesMarked = false;
+      state.watchMarked = false;
+      state.actionSelected = '';
+      state.isLiveTv = true;
+      state.showLiveBtn = false;
+      state.isPaused = false;
+      this.buildActions();
+      this.setChannel(DEMO_CHANNEL);
+      this.setLiveTv(true);
+      setProgramTag('live');
+      this.setProgress(6.2, 671, 10800);
+      this.hideAspectPad();
+      this.hideProgramInfo();
+      this.showToast(null);
+      this.showError(null);
+      this.setVodMode(false);
+      this.showInfobar(true);
       this.showLoading(false);
+      setSeekThumbPlay(false);
+      startClock();
     },
 
     applyBufferingDemo: function () {
@@ -323,7 +468,9 @@
     }
   };
 
-  PlayerUI.DEMO_CHANNEL_ICON = '../../mocks/channel-poster-ntv.png';
+  PlayerUI.ERROR_MSG_DEFAULT = ERROR_MSG_DEFAULT;
+  PlayerUI.DEMO_CHANNEL = DEMO_CHANNEL;
+  PlayerUI.DEMO_CHANNEL_ICON = DEMO_CHANNEL.icon;
   PlayerUI.DEMO_COMPANY_LOGO = '../../assets/v4/img_logo_player.png';
   PlayerUI.MODE_LABELS = MODE_LABELS;
 

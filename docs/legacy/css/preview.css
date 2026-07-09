@@ -1,0 +1,49 @@
+/* Preview dev toolbar only — не переносить в Samsung */
+.preview-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.92);
+  border-bottom: 1px solid #333;
+  padding: 6px 12px;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  max-height: 72px;
+  overflow-y: auto;
+}
+
+.preview-toolbar span {
+  color: #888;
+  margin-right: 8px;
+}
+
+.preview-toolbar button {
+  cursor: pointer;
+  padding: 4px 10px;
+  border: 1px solid #444;
+  background: #222;
+  color: #eee;
+  border-radius: 4px;
+}
+
+.preview-toolbar button:hover,
+.preview-toolbar button.active {
+  background: #18bbcc;
+  color: #111;
+  border-color: #18bbcc;
+}
+
+body.has-toolbar .screen {
+  top: 72px;
+  height: calc(1080px - 72px);
+}
+
+body.has-toolbar {
+  height: 1080px;
+}

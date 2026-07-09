@@ -8,10 +8,10 @@
   --v4-bg-outer: #010e21;
   --v4-bg-list: #051a31;
   --v4-bg-detail: #304154;
-  --v4-panel-bg: rgba(0, 0, 0, 0.43);
-  --v4-track: rgba(255, 255, 255, 0.44);
-  --v4-icon-bg: rgba(255, 255, 255, 0.1);
-  --v4-footer-bg: rgba(0, 0, 0, 0.15);
+  --v4-panel-bg: #6e000000;
+  --v4-track: #70ffffff;
+  --v4-icon-bg: #1affffff;
+  --v4-footer-bg: #26000000;
   --v4-focus-grad: linear-gradient(90deg, rgba(20, 59, 107, 0.53) 0%, rgba(1, 86, 100, 0) 100%);
 
   /* layout_controller */
@@ -60,6 +60,7 @@
 
   /* fragment_tv_category */
   --v4-cat-w: 420px;
+  --v4-inline-dates-w: 312px;
   --v4-cat-header-h: 156px;
   --v4-cat-header-text: 44px;
   --v4-search-w: 370px;

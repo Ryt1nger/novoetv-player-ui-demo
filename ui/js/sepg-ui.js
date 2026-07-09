@@ -41,11 +41,13 @@
     applyDemo: function () {
       var data = (global.mockData && global.mockData.sepg) || global.__PLAYER_MOCK_SEPG__ || null;
       programs = (data && data.programs) || [
-        { time: '18:00', name: 'Утренний эфир' },
-        { time: '20:00', name: 'Сёстры, 1-2 серия', hasPlay: true, selected: true },
-        { time: '22:00', name: 'Вечерние новости' }
+        { time: '16:00', name: 'Футбол. Обзор недели' },
+        { time: '18:55', name: 'Футбол. Winline Суперсерия. Зенит (Россия) - Нефтчи (Узбекистан)' },
+        { time: '21:00', name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска', hasPlay: true, selected: true },
+        { time: '23:30', name: 'Итоги дня' },
+        { time: '00:00', name: 'Ночной эфир' }
       ];
-      selected = 1;
+      selected = 2;
       for (var i = 0; i < programs.length; i++) {
         if (programs[i].selected) selected = i;
       }

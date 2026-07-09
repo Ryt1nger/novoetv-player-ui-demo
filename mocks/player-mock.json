@@ -1,28 +1,28 @@
 {
   "playerLive": {
     "channel": {
-      "number": "013",
-      "name": "NTV",
-      "icon": "assets/img/no_logo.gif",
-      "program_name": "Сёстры, 1-2 серия",
+      "number": "277",
+      "name": "Матч! ТВ HD",
+      "icon": "mocks/channel-poster-match.svg",
+      "program_name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска",
       "has_record": true
     },
-    "progress": 0.5,
-    "time": "00:00:01",
-    "duration": "00:25:00",
-    "navigationSelected": "pause",
-    "aspectLabel": "Видео"
+    "progress": 6.2,
+    "time": "11:11",
+    "duration": "3:00:00"
   },
   "playerError": {
-    "message": "Нет каналов в тарифе"
+    "message": "Не удалось загрузить трансляцию. Попробуйте позже"
   },
   "sepg": {
-    "title": "Программа передач — NTV",
-    "poster": "mocks/channel-poster-ntv.png",
+    "title": "Программа — Матч! ТВ HD",
+    "poster": "mocks/channel-poster-match.svg",
     "programs": [
-      { "time": "18:00", "name": "Утренний эфир", "selected": false },
-      { "time": "20:00", "name": "Сёстры, 1-2 серия", "selected": true, "progress": 35, "hasPlay": true },
-      { "time": "22:00", "name": "Вечерние новости", "selected": false }
+      { "time": "16:00", "name": "Футбол. Обзор недели" },
+      { "time": "18:55", "name": "Футбол. Winline Суперсерия. Зенит (Россия) - Нефтчи (Узбекистан)" },
+      { "time": "21:00", "name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска", "selected": true, "hasPlay": true },
+      { "time": "23:30", "name": "Итоги дня" },
+      { "time": "00:00", "name": "Ночной эфир" }
     ],
     "streamError": "Ошибка открытия архива. Повторный запрос..."
   },
@@ -32,60 +32,67 @@
     ],
     "selectedCategoryIndex": 0,
     "channels": [
-      { "number": "013", "name": "NTV", "icon": "../../mocks/channel-poster-ntv.png", "epg": "Сёстры, 1-2 серия", "time": "20:00" },
-      { "number": "001", "name": "Первый", "icon": "../../assets/v4/img_default_channel.png", "epg": "Новости", "time": "21:00" },
-      { "number": "002", "name": "Россия 1", "icon": "../../assets/v4/img_default_channel.png", "epg": "Вечерний эфир", "time": "20:30" },
-      { "number": "006", "name": "СТС", "icon": "../../assets/v4/img_default_channel.png", "epg": "Шоу", "time": "19:45" }
+      { "number": "277", "name": "Матч! ТВ HD", "icon": "../../mocks/channel-poster-match.svg", "epg": "Fight Nights", "time": "21:00" },
+      { "number": "001", "name": "Первый", "icon": "../../assets/v4/img_default_channel.png", "epg": "Время", "time": "21:00" },
+      { "number": "002", "name": "Россия 1", "icon": "../../assets/v4/img_default_channel.png", "epg": "Вечерний эфир", "time": "20:30" }
     ],
     "category": "Все каналы",
-    "channelName": "013. NTV",
-    "channelDescription": "Общероссийский телеканал",
-    "headerDate": "7 июля",
-    "headerTime": "20:15",
+    "channelName": "277. Матч! ТВ HD",
     "selectedDayIndex": 0,
     "selectedProgramIndex": 7,
     "focusedColumn": "programs",
-    "hasRecord": true,
     "days": [
-      "Сегодня, 7 июля",
-      "Завтра, 8 июля",
-      "Среда, 9 июля",
-      "Четверг, 10 июля",
-      "Пятница, 11 июля",
-      "Суббота, 12 июля",
-      "Воскресенье, 13 июля",
-      "Понедельник, 14 июля"
+      "Сегодня, 8 июля",
+      "Завтра, 9 июля",
+      "Среда, 10 июля",
+      "Четверг, 11 июля",
+      "Пятница, 12 июля"
     ],
     "programs": [
       { "time": "06:00", "name": "Доброе утро", "past": true },
-      { "time": "09:00", "name": "Сегодня", "past": true, "hasRecord": true },
-      { "time": "11:00", "name": "Чрезвычайное происшествие", "past": true, "hasRecord": true },
-      { "time": "12:00", "name": "Сегодня в 12:00", "past": true },
-      { "time": "14:00", "name": "Детективы", "past": true, "hasRecord": true },
-      { "time": "16:00", "name": "Сегодня в 16:00", "past": true },
-      { "time": "18:00", "name": "Утренний эфир", "past": true, "hasRecord": true },
+      { "time": "12:30", "name": "Новости", "past": true },
+      { "time": "18:55", "name": "Футбол. Winline Суперсерия", "past": true, "hasRecord": true },
       {
-        "time": "20:00",
-        "name": "Сёстры, 1-2 серия",
+        "time": "21:00",
+        "name": "Смешанные единоборства. Бетсити Fight Nights",
         "hasRecord": true,
         "activeRecord": true,
         "details": {
-          "timestart": "20:00 — 21:30",
-          "name": "Сёстры, 1-2 серия",
-          "subtitle": "Драма",
-          "description": "История трёх сестёр, каждая из которых по-своему справляется с жизненными трудностями.",
-          "rating": "12+"
+          "timestart": "21:00",
+          "name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска",
+          "description": "Трансляция турнира смешанных единоборств.",
+          "rating": "6+"
         }
       },
-      { "time": "22:00", "name": "Вечерние новости", "future": true, "hasRecord": true },
-      { "time": "23:30", "name": "Ночной эфир", "future": true, "hasRecord": true }
+      { "time": "23:30", "name": "Итоги дня", "future": true }
     ],
-    "programDetails": {
-      "timestart": "20:00 — 21:30",
-      "name": "Сёстры, 1-2 серия",
-      "subtitle": "Драма",
-      "description": "История трёх сестёр, каждая из которых по-своему справляется с жизненными трудностями.",
-      "rating": "12+"
+    "channelGuide": {
+      "channelIndex": 0,
+      "selectedDayIndex": 6,
+      "selectedProgramIndex": 2,
+      "focusedColumn": "programs",
+      "days": [
+        "Чт, 2 июля", "Пт, 3 июля", "Сб, 4 июля", "Вс, 5 июля",
+        "Пн, 6 июля", "Вт, 7 июля", "Сегодня", "Чт, 9 июля"
+      ],
+      "programs": [
+        { "time": "12:30", "name": "Новости", "past": true },
+        { "time": "18:55", "name": "Футбол. Winline Суперсерия. Зенит (Россия) - Нефтчи (Узбекистан)...", "past": true, "hasRecord": true },
+        {
+          "time": "21:00",
+          "name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска",
+          "hasRecord": true,
+          "activeRecord": true,
+          "details": {
+            "timestart": "21:00",
+            "name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска",
+          "description": "Трансляция турнира смешанных единоборств из Каспийска.",
+          "rating": "6+",
+          "poster": "../../mocks/program-poster-fight-nights.svg"
+          }
+        },
+        { "time": "23:30", "name": "Итоги дня", "future": true }
+      ]
     },
     "emptyMessage": "Программа передач недоступна"
   }

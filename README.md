@@ -16,6 +16,15 @@
 
 Данные — mock, логика пульта и API не подключены (только вёрстка и UI-состояния).
 
+## Continuous scan (APK 4.000)
+
+```bash
+npm run scan       # audit + visual MAE + DOM/tokens/strings
+```
+
+Отчёт: `screenshots/scan-reports/latest.md` — см. `docs/SCAN-4.000.md`  
+CI: `.github/workflows/scan.yml`
+
 ## Структура
 
 | Путь | Назначение |

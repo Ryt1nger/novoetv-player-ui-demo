@@ -1,0 +1,224 @@
+{
+  "note": "dip/sp from APK 4.000; px = dip×2 @ 1920x1080 xhdpi",
+  "tokens": {
+    "paddingHorizontal": {
+      "apk": "24.000000dip",
+      "px": 48.0
+    },
+    "panelMarginH": {
+      "apk": "10.500001dip",
+      "px": 21.0
+    },
+    "panelMarginBottom": {
+      "apk": "6.000000dip",
+      "px": 12.0
+    },
+    "panelMaxH": {
+      "apk": "172.000000dip",
+      "px": 344.0
+    },
+    "gradientH": {
+      "apk": "200.000000dip",
+      "px": 400.0
+    },
+    "footerH": {
+      "apk": "36.000000dip",
+      "px": 72.0
+    },
+    "logoW": {
+      "apk": "60.000000dip",
+      "px": 120.0
+    },
+    "logoH": {
+      "apk": "45.500004dip",
+      "px": 91.0
+    },
+    "logoImgW": {
+      "apk": "30.000000dip",
+      "px": 60.0
+    },
+    "logoImgH": {
+      "apk": "22.500002dip",
+      "px": 45.0
+    },
+    "logoMarginBottom": {
+      "apk": "5.500000dip",
+      "px": 11.0
+    },
+    "channelIcon": {
+      "apk": "48.000000dip",
+      "px": 96.0
+    },
+    "channelNameSp": {
+      "apk": "21.000000sp",
+      "px": 42.0
+    },
+    "programSp": {
+      "apk": "15.000000sp",
+      "px": 30.0
+    },
+    "seekTimeSp": {
+      "apk": "15.000000sp",
+      "px": 30.0
+    },
+    "focusIconBg": {
+      "apk": "30.000000dip",
+      "px": 60.0
+    },
+    "focusIcon": {
+      "apk": "13.500001dip",
+      "px": 27.0
+    },
+    "focusTextSp": {
+      "apk": "12.000000sp",
+      "px": 24.0
+    },
+    "seekTimeMinW": {
+      "apk": "66.000000dip",
+      "px": 132.0
+    },
+    "seekPadding": {
+      "apk": "13.000000dip",
+      "px": 26.0
+    },
+    "seekMarginStart": {
+      "apk": "12.000000dip",
+      "px": 24.0
+    },
+    "seekMarginEnd": {
+      "apk": "18.000000dip",
+      "px": 36.0
+    },
+    "metaPaddingBottom": {
+      "apk": "8.500001dip",
+      "px": 17.0
+    },
+    "channelIconMarginStart": {
+      "apk": "12.000000dip",
+      "px": 24.0
+    },
+    "channelIconMarginTop": {
+      "apk": "7.500001dip",
+      "px": 15.0
+    },
+    "textMarginStart": {
+      "apk": "10.000000dip",
+      "px": 20.0
+    },
+    "textMarginTop": {
+      "apk": "7.500001dip",
+      "px": 15.0
+    },
+    "programTagMarginTop": {
+      "apk": "10.000000dip",
+      "px": 20.0
+    },
+    "actionsMarginEnd": {
+      "apk": "12.000000dip",
+      "px": 24.0
+    },
+    "metaMarginEnd": {
+      "apk": "15.000000dip",
+      "px": 30.0
+    },
+    "focusCornerRadius": {
+      "apk": "5.000000dip",
+      "px": 10.0
+    },
+    "focusStroke": {
+      "apk": "1.000000dip",
+      "px": 2.0
+    },
+    "focusPadding": {
+      "apk": "4.000000dip",
+      "px": 8.0
+    },
+    "liveBtnH": {
+      "apk": "30.000000dip",
+      "px": 60.0
+    },
+    "liveBtnPadH": {
+      "apk": "10.000000dip",
+      "px": 20.0
+    },
+    "liveBtnMarginEnd": {
+      "apk": "5.000000dip",
+      "px": 10.0
+    },
+    "footerMarginStart": {
+      "apk": "30.000000dip",
+      "px": 60.0
+    },
+    "footerIcon": {
+      "apk": "20.000000dip",
+      "px": 40.0
+    },
+    "footerTextGap": {
+      "apk": "8.000000dip",
+      "px": 16.0
+    },
+    "footerClockMarginEnd": {
+      "apk": "30.000000dip",
+      "px": 60.0
+    },
+    "footerTextSp": {
+      "apk": "12.000000sp",
+      "px": 24.0
+    },
+    "footerClockSp": {
+      "apk": "15.000000sp",
+      "px": 30.0
+    },
+    "channelItemH": {
+      "apk": "72.000000dip",
+      "px": 144.0
+    },
+    "chLogoW": {
+      "apk": "40.000000dip",
+      "px": 80.0
+    },
+    "progMinH": {
+      "apk": "48.000000dip",
+      "px": 96.0
+    },
+    "progTextSp": {
+      "apk": "20.000000sp",
+      "px": 40.0
+    }
+  },
+  "guide": {
+    "categoryWidthPercent": 0.21861,
+    "categoryHeaderH": {
+      "apk": "78.000000dip",
+      "px": 156.0
+    },
+    "searchW": {
+      "apk": "185.000000dip",
+      "px": 370.0
+    },
+    "searchH": {
+      "apk": "32.000000dip",
+      "px": 64.0
+    },
+    "chFragMinW": {
+      "apk": "375.500023dip",
+      "px": 751.0
+    },
+    "progBarW": {
+      "apk": "3.000000dip",
+      "px": 6.0
+    },
+    "progSelectedRadius": {
+      "apk": "7.500001dip",
+      "px": 15.0
+    },
+    "dateHeaderH": {
+      "apk": "58.000000dip",
+      "px": 116.0
+    },
+    "channelItemH": {
+      "apk": "72.000000dip",
+      "px": 144.0
+    }
+  }
+}

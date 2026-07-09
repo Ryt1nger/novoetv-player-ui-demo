@@ -1,0 +1,51 @@
+        <div id="player-screen" class="screen key-handler" x-key-handler="info" style="display: none;" _onmousemove="App.display.getCurrentScreen().showSepg()">
+            <div id="playing-error-bar" class="playing-error-bar screen_pad" style="display:none;"></div>
+
+            <div id="tv-infobar" style="display:none;">
+                <div id="player-company-logo" onclick="App.playerScreen.key_menu()">
+                    <img id="player-company-logo-img" src="img/company-logo.png" />
+                </div>
+
+                <div id="block-tv-info">
+                    <div id="navigation-splitter"></div>
+                    <div id="navigation-panel">
+                        <ul id="navigation-list">
+                            <li id="nav0"><div class="tvchannels"></div></li>
+                        </ul>
+                    </div>
+                    <div id="infobar-common-info">
+                        <div id="infobar-channel-icon">
+                            <img id="player-channel-icon" src="no_logo.gif" />
+                        </div>
+                        <div id="infobar-channel-number"></div>
+                        <div id="infobar-channel-name"></div>
+                        <div id="infobar-program-name"></div>
+                        <div id="infobar-program-time"></div>
+
+                        <div id="infobar-progress-info">
+                            <div id="infobar-program-total"></div>
+                            <div id="infobar-program-progress"></div>
+                            <div id="infobar-program-pin"></div>
+                        </div>
+
+                        <div id="infobar-program-duration"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tv-fwdbar">
+                <div id="infobar-common-fwd">
+                    <div id="infobar-program-name-fwd"></div>
+                    <div id="infobar-program-time-fwd"></div>
+
+                    <div id="infobar-progress-fwd">
+                        <div id="infobar-program-total-fwd"></div>
+                        <div id="infobar-program-progress-fwd"></div>
+                        <div id="infobar-program-pin-fwd"></div>
+                    </div>
+
+                    <div id="infobar-program-duration-fwd"></div>
+                </div>
+            </div>
+
+        </div>

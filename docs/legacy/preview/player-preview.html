@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>Player UI — NovoeTV reference (1920×1080)</title>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/player.css">
+  <link rel="stylesheet" href="../css/preview.css">
+</head>
+<body class="has-toolbar tizen_tv">
+
+  <nav class="preview-toolbar" id="toolbar">
+    <span>Экран:</span>
+    <button data-view="player-live" class="active">Player</button>
+    <button data-view="player-loading">Loading</button>
+    <button data-view="player-error">Error</button>
+    <button data-view="player-vod">VOD</button>
+    <button data-view="player-fwd">Fwd bar</button>
+    <button data-view="player-fav">Fav ✓</button>
+    <span>|</span>
+    <button data-view="sepg">Mini-EPG</button>
+    <button data-view="sepg-loading">SEPG load</button>
+    <span>|</span>
+    <button data-view="epg">Full EPG</button>
+    <button data-view="epg-loading">EPG load</button>
+    <button data-view="epg-empty">EPG empty</button>
+    <span>|</span>
+    <span>Фокус nav:</span>
+    <button data-nav="0">♥</button>
+    <button data-nav="1">later</button>
+    <button data-nav="2">stop</button>
+    <button data-nav="4" class="active">pause</button>
+    <button data-nav="5">ch</button>
+    <button data-nav="6">epg</button>
+    <button data-nav="7">menu</button>
+    <button data-nav="8">info</button>
+  </nav>
+
+  <!-- PLAYER -->
+  <div id="player-screen" class="screen">
+    <div id="loading-bar" class="preview-hidden">
+      <img src="../assets/img/loading_data.gif" width="102" height="102" alt="">
+    </div>
+    <div id="aspect-bar" class="screen_pad">Видео</div>
+    <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden">Нет каналов в тарифе</div>
+
+    <div id="tv-infobar">
+      <div id="player-company-logo">
+        <img id="player-company-logo-img" src="../assets/img/company-logo.png" alt="NOVOE TV">
+      </div>
+      <div id="block-tv-info">
+        <div id="navigation-splitter"></div>
+        <div id="navigation-panel">
+          <ul id="navigation-list" class="selected">
+            <li id="nav0"><div id="btn-favorites-div" class="favorites"></div></li>
+            <li id="nav1"><div id="btn-mycontent-div" class="mycontent"></div></li>
+            <li id="nav2"><div id="btn-stop-div" class="stop"></div></li>
+            <li id="nav3"><div id="btn-multiaudio-div" class="multiaudio multiaudio_disabled"></div></li>
+            <li id="nav4" class="selected"><div id="btn-pause-div" class="pause"></div></li>
+            <li id="nav5"><div id="btn-tvchannels-div" class="tvchannels"></div></li>
+            <li id="nav6"><div id="btn-epg-div" class="epg"></div></li>
+            <li id="nav7"><div id="btn-mainmenu-div" class="mainmenu"></div></li>
+            <li id="nav8"><div id="btn-info-div" class="info"></div></li>
+          </ul>
+        </div>
+        <div id="infobar-common-info">
+          <div id="infobar-channel-icon">
+            <img id="player-channel-icon" src="../assets/img/no_logo.gif" alt="">
+          </div>
+          <div id="infobar-channel-number"></div>
+          <div id="infobar-channel-name">NTV</div>
+          <div id="infobar-program-name">Сёстры, 1-2 серия</div>
+          <div id="infobar-program-time">00:00:01</div>
+          <div id="infobar-progress-info">
+            <div id="infobar-program-total"></div>
+            <div id="infobar-program-progress" style="width:6px"></div>
+            <div id="infobar-program-pin" style="left:0px"></div>
+          </div>
+          <div id="infobar-program-duration">00:25:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tv-fwdbar">
+      <div id="infobar-common-fwd">
+        <div id="infobar-program-name-fwd">Сёстры, 1-2 серия</div>
+        <div id="infobar-program-time-fwd">00:12:30</div>
+        <div id="infobar-progress-fwd">
+          <div id="infobar-program-total-fwd"></div>
+          <div id="infobar-program-progress-fwd" style="width:50%"></div>
+          <div id="infobar-program-pin-fwd" style="left:50%"></div>
+        </div>
+        <div id="infobar-program-duration-fwd">00:25:00</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI EPG -->
+  <div id="sepg-screen" class="screen preview-hidden">
+    <div id="playing-error-bar-sepg" class="playing-error-bar screen_pad preview-hidden"></div>
+    <div id="sepg-block-title">Программа передач — NTV</div>
+    <div id="sepg-container" class="sepg-normal">
+      <div class="left bottom sepg-arrow"><img id="sepg-left-arrow" src="../assets/img/nav_left.png" alt=""></div>
+      <ul id="sepg-menu-list" class="bottom selected">
+        <li id="sepg-channel-0">
+          <div class="sepg-image"><img class="absolute_img" src="../assets/img/no_logo.gif" alt=""></div>
+          <div class="sepg-name"><table width="100%" height="100%"><tr><td valign="center">18:00 Утренний эфир</td></tr></table></div>
+          <div class="sepg-line" style="visibility:hidden"><div class="sepg-line-inner"></div></div>
+        </li>
+        <li id="sepg-channel-1" class="selected">
+          <div class="sepg-image">
+            <img class="absolute_img" src="../assets/img/no_logo.gif" alt="">
+            <img class="absolute_play" src="../assets/img/sepg_play.png" alt="">
+          </div>
+          <div class="sepg-name"><table width="100%" height="100%"><tr><td valign="center">20:00 Сёстры, 1-2 серия</td></tr></table></div>
+          <div class="sepg-line"><div class="sepg-line-inner" style="width:35%"></div></div>
+        </li>
+        <li id="sepg-channel-2">
+          <div class="sepg-image"><img class="absolute_img" src="../assets/img/no_logo.gif" alt=""></div>
+          <div class="sepg-name"><table width="100%" height="100%"><tr><td valign="center">22:00 Вечерние новости</td></tr></table></div>
+          <div class="sepg-line" style="visibility:hidden"><div class="sepg-line-inner"></div></div>
+        </li>
+      </ul>
+      <div class="right bottom sepg-arrow"><img id="sepg-right-arrow" src="../assets/img/nav_right.png" alt=""></div>
+    </div>
+    <div id="sepg-container-loading" class="sepg-loading preview-hidden">
+      <div class="left bottom sepg-arrow"><img src="../assets/img/nav_left.png" alt=""></div>
+      <ul id="sepg-menu-list-loading" class="bottom">
+        <li id="sepg-load-0"><div class="loading"><img src="../assets/img/loading_data.gif" width="30" alt=""></div></li>
+        <li id="sepg-load-1"><div class="loading"><img src="../assets/img/loading_data.gif" width="30" alt=""></div></li>
+        <li id="sepg-load-2"><div class="loading"><img src="../assets/img/loading_data.gif" width="30" alt=""></div></li>
+      </ul>
+      <div class="right bottom sepg-arrow"><img src="../assets/img/nav_right.png" alt=""></div>
+    </div>
+  </div>
+
+  <!-- FULL EPG -->
+  <div id="epg-screen" class="screen preview-hidden">
+    <div class="screen-header">
+      <div class="header-logo"><img src="../assets/img/company-logo.png" alt=""></div>
+      <div class="header-date">7 июля</div>
+      <div class="header-time">13:37</div>
+    </div>
+    <div class="screen-content epg-headers">
+      <div class="header" id="epg-category">Все каналы</div>
+      <div class="header" id="epg-channel-name">NTV</div>
+      <div class="header" id="epg-channel-description">Общероссийский телеканал</div>
+    </div>
+    <div class="screen-content" id="epg-content-normal">
+      <div class="list days">
+        <ul id="epg-days-list" class="selected">
+          <li id="epgday0">Сегодня, 7 июля</li>
+          <li id="epgday1" class="selected">Завтра, 8 июля</li>
+          <li id="epgday2">Среда, 9 июля</li>
+        </ul>
+      </div>
+      <div class="list epg">
+        <ul id="epg-list" class="selected">
+          <li id="epg0">
+            <div class="epg-program-time">18:00</div>
+            <div class="epg-program-name">Утренний эфир</div>
+          </li>
+          <li id="epg1" class="selected">
+            <div class="epg-program-record has-record"></div>
+            <div class="epg-program-time">20:00</div>
+            <div class="epg-program-name">Сёстры, 1-2 серия</div>
+          </li>
+          <li id="epg2">
+            <div class="epg-program-record has-record"></div>
+            <div class="epg-program-time">22:00</div>
+            <div class="epg-program-name">Вечерние новости</div>
+          </li>
+        </ul>
+      </div>
+      <div class="list program-details">
+        <div id="program-data">
+          <div class="text-data">
+            <div class="program-timestart">20:00 — 21:30</div>
+            <div class="program-name">Сёстры, 1-2 серия</div>
+            <div class="program-subtitle">Драма</div>
+            <div class="program-description">История трёх сестёр, каждая из которых по-своему справляется с жизненными трудностями.</div>
+            <div class="program-rating">12+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-content preview-hidden" id="epg-content-loading">
+      <div class="list days"><div class="data-loading"><img src="../assets/img/loading_data.gif" alt=""></div></div>
+      <div class="list epg"><div id="epg-data-loading" class="data-loading"><img src="../assets/img/loading_data.gif" alt=""></div></div>
+      <div class="list program-details"><div id="program-data-loading" class="data-loading"><img src="../assets/img/loading_data.gif" alt=""></div></div>
+    </div>
+    <div class="screen-content preview-hidden" id="epg-content-empty">
+      <div class="list days">
+        <ul id="epg-days-list-empty" class="selected"><li class="selected">Сегодня</li></ul>
+      </div>
+      <div class="list epg"><div id="no-epg-message" class="no-content">Программа передач недоступна</div></div>
+      <div class="list program-details"></div>
+    </div>
+  </div>
+
+  <script>
+    var currentView = 'player-live';
+    var NAV_IDS = ['nav0','nav1','nav2','nav3','nav4','nav5','nav6','nav7','nav8'];
+
+    function setNavSelected(index) {
+      NAV_IDS.forEach(function(id, i) {
+        var li = document.getElementById(id);
+        if (li) li.classList.toggle('selected', i === index);
+      });
+      document.querySelectorAll('[data-nav]').forEach(function(btn) {
+        btn.classList.toggle('active', parseInt(btn.getAttribute('data-nav'), 10) === index);
+      });
+    }
+
+    function applyPlayerState(cfg) {
+      var infobar = document.getElementById('tv-infobar');
+      var screen = document.getElementById('player-screen');
+      var isError = cfg.states && cfg.states.indexOf('player-error') !== -1;
+      var isLoading = cfg.states && cfg.states.indexOf('player-loading') !== -1;
+
+      screen.classList.toggle('show-fwd', !!cfg.fwd);
+      infobar.style.display = (!cfg.fwd && !isError) ? 'block' : 'none';
+      infobar.classList.toggle('vod', !!cfg.vod);
+      document.getElementById('playing-error-bar').classList.toggle('preview-hidden', !isError);
+      document.getElementById('loading-bar').classList.toggle('preview-hidden', !isLoading);
+      document.getElementById('aspect-bar').classList.toggle('preview-hidden', isError);
+      document.getElementById('btn-favorites-div').classList.toggle('marked', !!cfg.fav);
+    }
+
+    function setView(viewId) {
+      var views = {
+        'player-live':    { screen: 'player-screen', states: [] },
+        'player-loading': { screen: 'player-screen', states: ['player-loading'] },
+        'player-error':   { screen: 'player-screen', states: ['player-error'] },
+        'player-vod':     { screen: 'player-screen', vod: true },
+        'player-fwd':     { screen: 'player-screen', fwd: true },
+        'player-fav':     { screen: 'player-screen', fav: true },
+        'sepg':           { screen: 'sepg-screen' },
+        'sepg-loading':   { screen: 'sepg-screen', sepgLoading: true },
+        'epg':            { screen: 'epg-screen' },
+        'epg-loading':    { screen: 'epg-screen', epgLoading: true },
+        'epg-empty':      { screen: 'epg-screen', epgEmpty: true }
+      };
+      var cfg = views[viewId];
+      if (!cfg) return;
+      currentView = viewId;
+
+      document.querySelectorAll('.screen').forEach(function(el) { el.classList.add('preview-hidden'); });
+      document.getElementById(cfg.screen).classList.remove('preview-hidden');
+
+      if (cfg.screen === 'player-screen') applyPlayerState(cfg);
+
+      if (cfg.screen === 'sepg-screen') {
+        document.querySelector('.sepg-normal').classList.toggle('preview-hidden', !!cfg.sepgLoading);
+        document.getElementById('sepg-container-loading').classList.toggle('preview-hidden', !cfg.sepgLoading);
+      }
+
+      if (cfg.screen === 'epg-screen') {
+        document.getElementById('epg-content-normal').classList.toggle('preview-hidden', viewId !== 'epg');
+        document.getElementById('epg-content-loading').classList.toggle('preview-hidden', !cfg.epgLoading);
+        document.getElementById('epg-content-empty').classList.toggle('preview-hidden', !cfg.epgEmpty);
+        document.querySelector('.epg-headers').classList.toggle('preview-hidden', cfg.epgEmpty || cfg.epgLoading);
+      }
+
+      document.querySelectorAll('#toolbar [data-view]').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-view') === viewId);
+      });
+    }
+
+    document.getElementById('toolbar').addEventListener('click', function(e) {
+      var viewBtn = e.target.closest('[data-view]');
+      if (viewBtn) setView(viewBtn.getAttribute('data-view'));
+      var navBtn = e.target.closest('[data-nav]');
+      if (navBtn) setNavSelected(parseInt(navBtn.getAttribute('data-nav'), 10));
+    });
+
+    setView('player-live');
+    setNavSelected(4);
+  </script>
+</body>
+</html>

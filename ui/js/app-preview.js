@@ -3,6 +3,8 @@
 
   var currentScreen = 'player';
   var currentPlayerState = 'playing';
+  var guideOverlay = false;
+  var playerStateBeforeOverlay = 'playing';
   var mockData = null;
   var layerTimers = {};
 
@@ -99,7 +101,7 @@
     paused: function () { PlayerUI.applyPausedDemo(); },
     loading: function () { PlayerUI.applyRebufferDemo(); },
     error: function () {
-      PlayerUI.showError('Нет каналов в тарифе');
+      PlayerUI.showError(PlayerUI.ERROR_MSG_DEFAULT);
     },
     vod: function () {
       PlayerUI.applyPlayingDemo();
@@ -112,17 +114,42 @@
     },
     fav: function () {
       PlayerUI.applyPlayingDemo();
+      PlayerUI.setActionFocus('favorite');
       PlayerUI.setFavoritesMarked(true);
+    },
+    'program-info': function () {
+      PlayerUI.applyPlayingDemo();
+      PlayerUI.setActionFocus('program');
+      PlayerUI.showProgramInfo();
+    },
+    'mini-list': function () {
+      guideOverlay = false;
+      EpgUI.hide();
+      PlayerUI.applyPlayingDemo();
+      PlayerUI.hideProgramInfo();
+      SepgUI.applyDemo();
+      setDimOverlay(null);
+    },
+    'channel-guide': function () {
+      AppPreview.showGuideOverlay('channel-guide');
     },
     archive: function () {
       PlayerUI.applyPlayingDemo();
       PlayerUI.setArchiveControls();
       PlayerUI.setChannel({
-        number: '013', name: 'NTV', icon: PlayerUI.DEMO_CHANNEL_ICON,
-        program_name: 'Сёстры, 1-2 серия', has_record: true
+        number: '013',
+        name: 'Матч! ТВ HD',
+        icon: PlayerUI.DEMO_CHANNEL_ICON,
+        program_name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска',
+        has_record: true
       });
-      PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.archive);
-    }
+      PlayerUI.setProgress(72, 6713, 9300);
+    },
+    clean: function () {
+      PlayerUI.applyPlayingDemo();
+      PlayerUI.showInfobar(false);
+      PlayerUI.showError(null);
+    },
   };
 
   var SEPG_STATES = {
@@ -138,6 +165,7 @@
 
   var EPG_STATES = {
     demo: function () { EpgUI.applyDemo(); },
+    'channel-guide': function () { EpgUI.applyChannelGuideDemo(); },
     loading: function () { EpgUI.applyLoadingDemo(); },
     'channel-loading': function () { EpgUI.applyChannelLoadingDemo(); },
     empty: function () { EpgUI.applyEmptyDemo(); }
@@ -163,6 +191,7 @@
     },
 
     showScreen: function (name) {
+      guideOverlay = false;
       currentScreen = name;
       var showVideo = name === 'player' || name === 'sepg' || name === 'epg';
       var showPlayerLayer = name === 'player' || name === 'sepg';
@@ -184,9 +213,15 @@
         SepgUI.hide();
         EpgUI.hide();
         AppPreview.applyPlayerState(currentPlayerState);
-        setInfobarVisible(true);
+        if (currentPlayerState !== 'mini-list') {
+          setDimOverlay(null);
+        }
+        if (currentPlayerState !== 'clean') {
+          setInfobarVisible(true);
+        }
       } else if (name === 'sepg') {
         EpgUI.hide();
+        PlayerUI.hideProgramInfo();
         PlayerUI.applyPlayingDemo();
         PlayerUI.hideAspectPad();
         setInfobarVisible(true);
@@ -201,8 +236,50 @@
       }
     },
 
+    showGuideOverlay: function (epgState) {
+      if (!guideOverlay) {
+        playerStateBeforeOverlay = currentPlayerState === 'channel-guide' ? 'archive' : currentPlayerState;
+      }
+      guideOverlay = true;
+      currentScreen = 'player';
+      setLayerActive('mock-video-bg', true);
+      setLayerActive('player-screen', true);
+      setDimOverlay('epg');
+      SepgUI.hide();
+      PlayerUI.hideProgramInfo();
+      PlayerUI.hideAspectPad();
+      PlayerUI.showLoading(false);
+      PlayerUI.showError(null);
+      PlayerUI.showInfobar(false);
+      setVisible('iptv-date-screen', false);
+      setVisible('iptv-guide', true);
+      setPanelSection('player');
+      if (epgState === 'channel-guide') {
+        EpgUI.applyChannelGuideDemo();
+      } else {
+        EpgUI.applyDemo();
+      }
+    },
+
+    closeGuideOverlay: function () {
+      if (!guideOverlay) return;
+      guideOverlay = false;
+      EpgUI.hide();
+      setDimOverlay(null);
+      setVisible('iptv-guide', false);
+      currentPlayerState = playerStateBeforeOverlay;
+      PLAYER_STATES[playerStateBeforeOverlay]();
+      if (playerStateBeforeOverlay !== 'clean' && playerStateBeforeOverlay !== 'mini-list') {
+        setInfobarVisible(true);
+      }
+    },
+
     applyPlayerState: function (stateName) {
       if (!PLAYER_STATES[stateName]) return;
+      if (currentPlayerState === 'mini-list' && stateName !== 'mini-list') {
+        SepgUI.hide();
+        if (!guideOverlay) setDimOverlay(null);
+      }
       currentPlayerState = stateName;
       PLAYER_STATES[stateName]();
     },
@@ -289,7 +366,18 @@
         if (actionFocus) {
           var actionId = actionFocus.getAttribute('data-action-focus');
           AppPreview.setActionFocus(actionId);
-          if (actionId === 'program') AppPreview.showScreen('sepg');
+          if (actionId === 'program') {
+          AppPreview.showScreen('player');
+          if (currentPlayerState === 'archive') {
+            AppPreview.showGuideOverlay('channel-guide');
+          } else {
+            PlayerUI.showProgramInfo();
+          }
+          panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
+            b.classList.toggle('active', b === actionFocus);
+          });
+          return;
+        }
           panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
             b.classList.toggle('active', b === actionFocus);
           });
@@ -318,6 +406,7 @@
         if (e.target.closest('[data-action="sepg-left"]')) AppPreview.sepgShift(-1);
         if (e.target.closest('[data-action="sepg-right"]')) AppPreview.sepgShift(1);
         if (e.target.id === 'iptv-date-back') EpgUI.hideDateScreen();
+        if (e.target.closest('#iptv-inline-back')) AppPreview.closeGuideOverlay();
       });
 
       var slider = byId('progress-slider');

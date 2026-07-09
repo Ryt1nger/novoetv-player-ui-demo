@@ -130,6 +130,7 @@
   order: 3;
   margin: 0 var(--v4-panel-mx) var(--v4-panel-mb);
   background: var(--v4-panel-bg);
+  max-height: var(--v4-panel-max-h);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -275,8 +276,20 @@
 #program-tag {
   font-size: var(--v4-prog-text);
   line-height: 1.2;
-  color: var(--v4-white);
   margin-top: var(--v4-program-tag-margin-top);
+  opacity: 1;
+}
+
+#program-tag.tag-live {
+  color: #5ad66a;
+}
+
+#program-tag.tag-archive {
+  color: #f5d442;
+}
+
+#program-tag.tag-video {
+  color: var(--v4-white);
   opacity: 0.85;
 }
 
@@ -295,11 +308,21 @@
   padding: 0 var(--v4-live-btn-pad-h);
   margin-right: var(--v4-live-btn-margin-end);
   border: none;
-  border-radius: 6px;
-  background: var(--v4-bg-list);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
   color: var(--v4-white);
   font-size: var(--v4-focus-text);
   cursor: pointer;
+}
+
+#btn-live:focus,
+#btn-live.selected {
+  outline: 2px solid var(--v4-accent);
+  background: rgba(134, 219, 255, 0.18);
+}
+
+#btn-live.preview-hidden {
+  display: none !important;
 }
 
 .focus-switch {
@@ -387,19 +410,22 @@
 }
 
 #player-screen .playing-error-bar {
-  top: 45%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: auto;
+  bottom: 280px;
+  left: auto;
+  right: 48px;
+  transform: none;
   width: auto;
-  max-width: 900px;
-  padding: 28px 40px;
-  background: rgba(0, 0, 0, 0.62);
-  border: none;
-  border-radius: 10px;
+  max-width: 560px;
+  padding: 22px 28px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 0;
   z-index: 20;
-  font-size: 32px;
+  font-size: 30px;
   line-height: 1.35;
-  text-align: center;
+  text-align: left;
+  color: var(--v4-white);
 }
 
 #playing-error-bar-sepg {
@@ -446,4 +472,63 @@
 #player-screen #tv-fwdbar,
 #player-screen #navigation-panel {
   display: none !important;
+}
+
+/* toast — APK player message */
+#player-toast {
+  position: absolute;
+  right: 48px;
+  bottom: 300px;
+  z-index: 22;
+  max-width: 720px;
+  padding: 18px 28px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--v4-white);
+  font-size: 28px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+#player-toast.preview-hidden {
+  display: none !important;
+}
+
+/* program description overlay (controller, not sepg screen) */
+#controller-meta-row {
+  position: relative;
+}
+
+.program-info-overlay {
+  position: absolute;
+  right: var(--v4-actions-margin-end);
+  bottom: calc(100% + 12px);
+  width: min(920px, 58vw);
+  max-height: 220px;
+  padding: 20px 24px 20px 20px;
+  background: rgba(0, 0, 0, 0.62);
+  border-radius: 4px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.program-info-overlay.preview-hidden {
+  display: none !important;
+}
+
+.program-info-accent {
+  flex: 0 0 8px;
+  align-self: stretch;
+  background: #e53935;
+  border-radius: 2px;
+}
+
+#program-info-text {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.4;
+  color: var(--v4-white);
 }
