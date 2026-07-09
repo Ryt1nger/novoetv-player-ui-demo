@@ -1,0 +1,192 @@
+{
+  "backgrounds": {
+    "default": "../../assets/img/back.jpg",
+    "live": "../../assets/img/back.jpg",
+    "future": "../../assets/img/back.jpg",
+    "archive": "../../assets/img/back.jpg",
+    "paused": "../../assets/img/back.jpg",
+    "program-info": "../../assets/img/back.jpg",
+    "mini-list": "../../assets/img/back.jpg",
+    "clean": "../../assets/img/back.jpg",
+    "fav": "../../assets/img/back.jpg"
+  },
+  "channels": {
+    "perviy": {
+      "number": "001",
+      "name": "Первый",
+      "icon": "../../mocks/channel-poster-perviy.svg",
+      "program_name": "Время"
+    },
+    "match": {
+      "number": "277",
+      "name": "Матч! ТВ HD",
+      "icon": "../../mocks/channel-poster-match.svg",
+      "program_name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска"
+    }
+  },
+  "playerLive": {
+    "channel": "perviy",
+    "tag": "live",
+    "progress": 31.3,
+    "current": "18:49",
+    "currentSec": 1129,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов",
+    "actionFocus": ""
+  },
+  "playerArchive": {
+    "channel": "perviy",
+    "tag": "archive",
+    "progress": 0.85,
+    "current": "00:30",
+    "currentSec": 30,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов",
+    "actionFocus": ""
+  },
+  "playerFuture": {
+    "channel": "perviy",
+    "tag": "live",
+    "progress": 31.3,
+    "current": "18:49",
+    "currentSec": 1129,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов",
+    "actionFocus": "watch"
+  },
+  "playerProgramInfo": {
+    "channel": "perviy",
+    "tag": "live",
+    "progress": 26.8,
+    "current": "15:58",
+    "currentSec": 958,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов",
+    "description": "Союзники по НАТО поумерили ожидания от саммита после гневных тирад Трампа. Президент США выступил с резкой критикой партнёров по альянсу."
+  },
+  "playerPaused": {
+    "channel": "perviy",
+    "tag": "live",
+    "progress": 26.8,
+    "current": "15:58",
+    "currentSec": 958,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов"
+  },
+  "playerError": {
+    "message": "Не удалось загрузить трансляцию. Попробуйте позже",
+    "channel": "perviy",
+    "footerHint": "Список каналов"
+  },
+  "playerLoading": {
+    "channel": "perviy",
+    "tag": "live",
+    "progress": 31.3,
+    "current": "18:49",
+    "currentSec": 1129,
+    "duration": "59:30",
+    "durationSec": 3570,
+    "footerHint": "Список каналов"
+  },
+  "sepg": {
+    "title": "Программа — Первый",
+    "poster": "../../mocks/channel-poster-perviy.svg",
+    "channelName": "Первый",
+    "programs": [
+      { "time": "16:00", "name": "Доброе утро. Часть 2" },
+      { "time": "18:40", "name": "Время. Часть 1" },
+      { "time": "21:00", "name": "Время", "selected": true, "hasPlay": true },
+      { "time": "23:30", "name": "Время. Часть 2" },
+      { "time": "00:40", "name": "Новости" }
+    ],
+    "streamError": "Ошибка открытия архива. Повторный запрос..."
+  },
+  "sepgMatch": {
+    "title": "Программа — Матч! ТВ HD",
+    "poster": "../../mocks/channel-poster-match.svg",
+    "channelName": "Матч! ТВ HD",
+    "programs": [
+      { "time": "16:00", "name": "Футбол. Обзор недели" },
+      { "time": "18:55", "name": "Футбол. Winline Суперсерия. Зенит (Россия) - Нефтчи (Узбекистан)" },
+      { "time": "21:00", "name": "Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска", "selected": true, "hasPlay": true },
+      { "time": "23:30", "name": "Итоги дня" },
+      { "time": "00:00", "name": "Ночной эфир" }
+    ],
+    "streamError": "Ошибка открытия архива. Повторный запрос..."
+  },
+  "epg": {
+    "categories": [
+      "Все каналы", "Избранное", "Эфирные", "Кино", "Детские", "Спорт", "Музыка"
+    ],
+    "selectedCategoryIndex": 0,
+    "channels": [
+      { "number": "001", "name": "Первый", "icon": "../../mocks/channel-poster-perviy.svg", "epg": "Время", "time": "21:00" },
+      { "number": "277", "name": "Матч! ТВ HD", "icon": "../../mocks/channel-poster-match.svg", "epg": "Fight Nights", "time": "21:00" },
+      { "number": "002", "name": "Россия 1", "icon": "../../assets/v4/img_default_channel.png", "epg": "Вечерний эфир", "time": "20:30" }
+    ],
+    "category": "Все каналы",
+    "channelName": "001. Первый",
+    "selectedDayIndex": 0,
+    "selectedProgramIndex": 2,
+    "focusedColumn": "programs",
+    "days": [
+      "Сегодня, 8 июля",
+      "Завтра, 9 июля",
+      "Среда, 10 июля",
+      "Четверг, 11 июля",
+      "Пятница, 12 июля"
+    ],
+    "programs": [
+      { "time": "06:00", "name": "Доброе утро", "past": true },
+      { "time": "12:30", "name": "Новости", "past": true },
+      { "time": "18:40", "name": "Время. Часть 1", "past": true, "hasRecord": true },
+      {
+        "time": "21:00",
+        "name": "Время",
+        "hasRecord": true,
+        "activeRecord": true,
+        "details": {
+          "timestart": "21:00",
+          "name": "Время",
+          "description": "Главная информационная программа.",
+          "rating": "16+"
+        }
+      },
+      { "time": "23:30", "name": "Время. Часть 2", "future": true }
+    ],
+    "channelGuide": {
+      "channelIndex": 0,
+      "selectedDayIndex": 6,
+      "selectedProgramIndex": 2,
+      "focusedColumn": "programs",
+      "days": [
+        "Чт, 2 июля", "Пт, 3 июля", "Сб, 4 июля", "Вс, 5 июля",
+        "Пн, 6 июля", "Вт, 7 июля", "Сегодня", "Чт, 9 июля"
+      ],
+      "programs": [
+        { "time": "12:30", "name": "Новости", "past": true },
+        { "time": "18:40", "name": "Время. Часть 1", "past": true, "hasRecord": true },
+        {
+          "time": "21:00",
+          "name": "Время",
+          "hasRecord": true,
+          "activeRecord": true,
+          "details": {
+            "timestart": "21:00",
+            "name": "Время",
+            "description": "Главная информационная программа.",
+            "rating": "16+",
+            "poster": "../../mocks/channel-poster-perviy.svg"
+          }
+        },
+        { "time": "23:30", "name": "Время. Часть 2", "future": true }
+      ]
+    },
+    "emptyMessage": "Программа передач недоступна"
+  }
+}

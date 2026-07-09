@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Базовые стили Samsung widget (общие для всех экранов)
+   ========================================================================== */
+
+@font-face {
+  font-family: 'mvideo';
+  src: url('mvideo.ttf') format('truetype');
+}
+
+/* --- Сброс и типографика --- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 40px;
+  font-family: 'mvideo', Verdana, Tahoma, sans-serif;
+  background-color: #000;
+  user-select: none;
+}
+
+img {
+  pointer-events: none;
+}
+
+/* --- Масштабирование под окно браузера --- */
+
+html.browser-preview,
+html.browser-preview body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+html.browser-preview #tv-viewport {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+html.browser-preview #tv-stage {
+  position: relative;
+  flex-shrink: 0;
+  width: 1920px;
+  height: 1080px;
+  transform: scale(var(--preview-scale, 1));
+  transform-origin: center center;
+  background: #000;
+}
+
+/* --- Экран 1920×1080 --- */
+
+#tv-stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #000;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 1920px;
+  height: 1080px;
+  padding: 0;
+  text-align: center;
+}
+
+#player-screen {
+  background: transparent;
+}
+
+/* --- Общие UI-паттерны widget --- */
+
+.screen_pad {
+  position: absolute;
+  z-index: 110;
+  height: 94px;
+  line-height: 100px;
+  text-align: center;
+  background-color: rgba(5, 26, 49, 1);
+  border: solid 3px #3e4555;
+  border-radius: 10px;
+}
+
+.screen .playing-error-bar {
+  top: 45%;
+  left: 300px;
+  z-index: 200;
+  width: 1320px;
+  height: auto;
+  padding: 20px;
+  overflow: hidden;
+  font-size: 32px;
+  line-height: normal;
+  white-space: normal;
+}
+
+#loading-bar {
+  position: absolute;
+  z-index: 100;
+  width: 102px;
+  height: 102px;
+  text-align: center;
+}
+
+/* Скрытие слоя (используется JS и preview-animations) */
+.preview-hidden {
+  display: none !important;
+}

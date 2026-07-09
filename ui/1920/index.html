@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920">
+  <title>NovoeTV Player UI</title>
+
+  <!-- Стили: база → токены → компоненты → превью -->
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/v4-tokens.css">
+  <link rel="stylesheet" href="css/player-v4.css">
+  <link rel="stylesheet" href="css/iptv-v4.css">
+  <link rel="stylesheet" href="css/preview-layout.css">
+  <link rel="stylesheet" href="css/preview-animations.css">
+
+  <!-- Bootstrap до отрисовки (audit / animate) -->
+  <script src="../js/preview-boot.js"></script>
+</head>
+<body class="tizen_tv dev-mode">
+
+  <!-- ================================================================
+       Сцена 1920×1080 (масштабируется под окно браузера)
+       ================================================================ -->
+  <div id="tv-viewport">
+    <div id="tv-stage">
+
+      <!-- Фон «видео» и затемнение -->
+      <div id="mock-video-bg"></div>
+      <div id="preview-dim-overlay" aria-hidden="true"></div>
+
+      <!-- Индикаторы поверх видео -->
+      <div id="aspect-bar" class="screen_pad preview-hidden"></div>
+      <div id="loading-bar" class="preview-hidden">
+        <img src="img/spinner.gif" width="102" height="102" alt="">
+      </div>
+
+      <!-- ============================================================
+           Экран плеера (layout_controller)
+           ============================================================ -->
+      <div id="player-screen" class="screen">
+
+        <div id="playing-error-bar" class="playing-error-bar screen_pad preview-hidden"></div>
+        <div id="player-toast" class="player-toast preview-hidden" role="status"></div>
+
+        <!-- Program info — отдельный overlay поверх видео -->
+        <div id="program-info-overlay" class="program-info-overlay preview-hidden">
+          <div class="program-info-accent" aria-hidden="true"></div>
+          <div class="program-info-inner">
+            <div id="program-info-actions" class="program-info-actions"></div>
+            <p id="program-info-text"></p>
+          </div>
+        </div>
+
+        <div id="player-controller" class="preview-hidden">
+          <div id="controller-gradient" aria-hidden="true"></div>
+
+          <div id="controller-bottom-stack">
+
+            <!-- Mini-list программ -->
+            <div id="controller-recycler-wrap" class="preview-hidden">
+              <div id="controller-recycler">
+                <ul id="controller-list"></ul>
+              </div>
+            </div>
+
+            <!-- Логотип оператора -->
+            <div id="controller-logo-badge">
+              <img id="controller-logo" src="../../assets/v4/img_logo_player.png" alt="NOVOE TV">
+            </div>
+
+            <!-- Панель: seekbar + мета + действия -->
+            <div id="controller-panel">
+              <div id="controller-seek-block">
+                <div id="controller-center-title" class="preview-hidden"></div>
+                <div class="controller-seek-row">
+                  <span id="infobar-program-time" class="seek-time">--:--</span>
+                  <div id="infobar-progress-info">
+                    <div id="infobar-program-total"></div>
+                    <div id="infobar-program-progress"></div>
+                    <div id="infobar-program-pin">
+                      <img src="../../assets/v4/icons/ic_seekbar_thumb.svg" alt="">
+                    </div>
+                  </div>
+                  <span id="infobar-program-duration" class="seek-time">--:--</span>
+                </div>
+              </div>
+
+              <div id="controller-meta-row">
+                <div class="controller-meta-left">
+                  <img id="player-channel-icon" src="../../assets/v4/img_default_channel.png" alt="">
+                  <div class="controller-text-block">
+                    <div id="infobar-channel-name"></div>
+                    <div id="infobar-program-name"></div>
+                    <div id="program-tag" class="preview-hidden"></div>
+                  </div>
+                </div>
+
+                <div id="controller-actions"></div>
+              </div>
+            </div>
+
+            <!-- Футер: подсказка + часы -->
+            <div id="controller-footer">
+              <div class="footer-hint">
+                <img class="footer-hint-icon" src="../../assets/v4/icons/ic_footer_hint_back.svg" alt="">
+                <span id="footer-hint-text">Список каналов</span>
+              </div>
+              <span id="footer-clock"></span>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="playing-error-bar-sepg" class="playing-error-bar preview-hidden"></div>
+      </div>
+
+      <!-- ============================================================
+           IPTV TV Guide (fragment_tv_category)
+           ============================================================ -->
+      <div id="iptv-guide" class="preview-hidden">
+
+        <!-- Режим channel-first: inline-даты -->
+        <aside class="iptv-inline-dates-pane preview-hidden">
+          <button type="button" class="iptv-inline-back" id="iptv-inline-back" aria-label="Назад">
+            <img src="../../assets/v4/icons/ic_iptv_schedule_back_arrow.svg" alt="">
+          </button>
+          <div class="iptv-inline-channel-header">
+            <img id="iptv-inline-channel-logo" src="../../mocks/channel-poster-perviy.svg" alt="">
+            <span id="iptv-inline-channel-name">Первый</span>
+          </div>
+          <ul id="iptv-inline-date-list"></ul>
+        </aside>
+
+        <!-- Категории -->
+        <aside class="iptv-category-pane" id="iptv-category-pane">
+          <div class="iptv-category-header"><span>TV Каналы</span></div>
+          <div class="iptv-category-search">
+            <input type="text" id="iptv-category-search" placeholder="Поиск канала" readonly tabindex="-1">
+          </div>
+          <ul id="iptv-category-list"></ul>
+        </aside>
+
+        <!-- Каналы -->
+        <section class="iptv-channel-pane" id="iptv-channel-pane">
+          <div id="iptv-channel-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
+            <div class="iptv-spinner"></div>
+          </div>
+          <ul id="iptv-channel-list"></ul>
+        </section>
+
+        <!-- Программы -->
+        <section class="iptv-program-pane" id="iptv-program-pane">
+          <div id="iptv-program-loading" class="iptv-pane-loading preview-hidden" aria-hidden="true">
+            <div class="iptv-spinner"></div>
+          </div>
+          <div id="iptv-program-empty" class="preview-hidden">Программа на выбранный день недоступна!</div>
+          <ul id="iptv-program-list"></ul>
+        </section>
+
+        <!-- Детали программы -->
+        <aside class="iptv-detail-pane preview-hidden">
+          <img id="iptv-detail-poster" src="../../mocks/program-poster-fight-nights.svg" alt="">
+          <div class="iptv-detail-actions">
+            <button type="button" id="iptv-detail-stream">Смотреть</button>
+            <button type="button" class="focus-switch" id="iptv-detail-watch" data-action="watch">
+              <span class="focus-switch-icon">
+                <img class="action-icon" src="../../assets/v4/icons/ic_watch.svg" alt="">
+              </span>
+              <span class="focus-switch-label">Буду смотреть</span>
+            </button>
+          </div>
+          <div id="iptv-detail-time"></div>
+          <h1 id="iptv-detail-title"></h1>
+          <p id="iptv-detail-description"></p>
+          <span id="iptv-detail-rating"></span>
+        </aside>
+      </div>
+
+      <!-- Экран выбора даты (fragment_tv_date) -->
+      <div id="iptv-date-screen" class="preview-hidden">
+        <button type="button" class="iptv-back-btn" id="iptv-date-back" aria-label="Назад">
+          <img src="../../assets/v4/icons/ic_iptv_schedule_back_arrow.svg" alt="">
+        </button>
+        <div class="iptv-date-content">
+          <div class="iptv-date-header">
+            <img id="iptv-date-header-logo" src="../../assets/v4/img_default_channel.png" alt="">
+            <span id="iptv-date-header-channel">NTV</span>
+          </div>
+          <ul id="iptv-date-list"></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Remote panel: компактный пульт (не влияет на масштаб сцены) -->
+  <div id="remote-panel">
+    <div class="remote-header">
+      <span class="remote-header-title">Пульт</span>
+      <button type="button" id="remote-toggle-debug" title="Debug states">Debug</button>
+      <button type="button" id="remote-collapse" title="Свернуть">−</button>
+    </div>
+
+    <div class="remote-body">
+      <div class="remote-dpad">
+        <span></span>
+        <button type="button" data-remote="up" title="Вверх">↑</button>
+        <span></span>
+        <button type="button" data-remote="left" title="Влево">←</button>
+        <button type="button" data-remote="ok" title="OK">OK</button>
+        <button type="button" data-remote="right" title="Вправо">→</button>
+        <span></span>
+        <button type="button" data-remote="down" title="Вниз">↓</button>
+        <span></span>
+      </div>
+
+      <div class="remote-actions">
+        <button type="button" data-remote="back">Back</button>
+        <button type="button" data-remote="guide">Guide</button>
+        <button type="button" data-remote="info">Info</button>
+        <button type="button" data-remote="playpause">Play/Pause</button>
+        <button type="button" data-remote="live">Live</button>
+        <button type="button" data-remote="fav">Fav</button>
+        <button type="button" data-remote="watch">Watch later</button>
+        <button type="button" data-remote="toggle-ui">Hide UI</button>
+      </div>
+
+      <div class="remote-scenario">
+        <label for="scenario-select">Сценарий</label>
+        <select id="scenario-select">
+          <option value="live" selected>Live</option>
+          <option value="archive">Archive</option>
+          <option value="future">Future</option>
+          <option value="error">Error</option>
+          <option value="loading">Loading</option>
+        </select>
+      </div>
+
+      <div class="remote-status" id="remote-status">Live · Первый</div>
+    </div>
+
+    <div id="debug-panel" class="debug-panel preview-hidden">
+      <div class="dev-panel-row">
+        <label>Экран:</label>
+        <button type="button" data-screen-tab="player" class="active">Player</button>
+        <button type="button" data-screen-tab="sepg">Mini list</button>
+        <button type="button" data-screen-tab="epg">IPTV Guide</button>
+      </div>
+      <div class="dev-panel-row" data-panel="player">
+        <label>State:</label>
+        <button type="button" data-player-state="clean">Clean</button>
+        <button type="button" data-player-state="live" class="active">Live</button>
+        <button type="button" data-player-state="future">Future</button>
+        <button type="button" data-player-state="archive">Archive</button>
+        <button type="button" data-player-state="program-info">Info</button>
+        <button type="button" data-player-state="paused">Paused</button>
+        <button type="button" data-player-state="loading">Loading</button>
+        <button type="button" data-player-state="error">Error</button>
+        <button type="button" data-player-state="mini-list">Mini list</button>
+        <button type="button" data-player-state="channel-guide">Ch EPG</button>
+      </div>
+      <div class="dev-panel-row" data-panel="player">
+        <label>EPG:</label>
+        <button type="button" data-epg-state="demo">Normal</button>
+        <button type="button" data-epg-state="channel-guide">Ch guide</button>
+        <button type="button" data-action="iptv-dates">Dates</button>
+        <input type="range" id="progress-slider" class="progress-slider" min="0" max="100" value="31" title="Прогресс">
+      </div>
+      <div class="dev-panel-row preview-hidden" data-panel="sepg">
+        <label>SEPG:</label>
+        <button type="button" data-sepg-state="demo" class="active">Demo</button>
+        <button type="button" data-sepg-state="loading">Loading</button>
+        <button type="button" data-sepg-state="empty">Empty</button>
+        <button type="button" data-sepg-state="error">Error</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модули UI -->
+  <script src="../js/dom-utils.js"></script>
+  <script src="../js/player-ui.js"></script>
+  <script src="../js/sepg-ui.js"></script>
+  <script src="../js/epg-ui.js"></script>
+  <script src="../js/app-preview.js"></script>
+  <script>
+    window.addEventListener('load', function () {
+      AppPreview.init();
+    });
+  </script>
+</body>
+</html>
