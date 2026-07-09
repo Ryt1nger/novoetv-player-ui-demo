@@ -1,6 +1,8 @@
-/* NovoeTV 4.000 — layout_controller.xml */
+/* ==========================================================================
+   Плеер NovoeTV 4.000 — layout_controller.xml
+   ========================================================================== */
 
-@import url('v4-tokens.css');
+/* --- Контейнер контроллера --- */
 
 #player-screen #player-controller {
   position: absolute;
@@ -12,7 +14,9 @@
   text-align: left;
 }
 
-#player-controller * { box-sizing: border-box; }
+#player-controller * {
+  box-sizing: border-box;
+}
 
 #controller-gradient {
   position: absolute;
@@ -21,7 +25,12 @@
   bottom: 0;
   height: var(--v4-gradient-h);
   pointer-events: none;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(14, 30, 43, 0.38) 38%, rgba(27, 59, 84, 0) 100%);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.42) 42%,
+    rgba(0, 0, 0, 0) 100%
+  );
 }
 
 #controller-bottom-stack {
@@ -32,12 +41,13 @@
   pointer-events: none;
 }
 
-/* recycler — paddingHorizontal 24dip */
+/* --- Mini-list (recycler) --- */
+
 #controller-recycler-wrap {
   order: 1;
+  max-height: 200px;
   padding: 0 var(--v4-pad-h);
-  margin-bottom: 4px;
-  max-height: 228px;
+  margin-bottom: 0;
   overflow: hidden;
   flex-shrink: 0;
   pointer-events: auto;
@@ -48,28 +58,30 @@
 }
 
 #controller-list {
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 #controller-list li {
   display: flex;
   align-items: center;
-  min-height: 72px;
-  padding: 0 20px;
+  min-height: 64px;
   margin: 0;
+  padding: 0 20px;
   color: var(--v4-white);
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1.1;
   background: transparent;
   border-radius: 0;
 }
 
 #controller-list li.selected {
-  background: var(--v4-white);
-  color: #000;
-  border-radius: 15px;
+  color: var(--v4-white);
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid var(--v4-accent);
+  border-radius: 12px;
+  max-width: 100%;
 }
 
 #controller-list li .recycler-time {
@@ -83,17 +95,17 @@
 
 #controller-list li .recycler-name {
   flex: 1;
-  white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
   padding-right: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 #controller-list li .recycler-play {
+  flex-shrink: 0;
   width: 30px;
   height: 30px;
   object-fit: contain;
-  flex-shrink: 0;
 }
 
 #controller-list li.loading-item,
@@ -103,21 +115,24 @@
   font-size: 28px;
 }
 
-#controller-list li.loading-item { color: var(--v4-accent); }
+#controller-list li.loading-item {
+  color: var(--v4-accent);
+}
 
-/* logo above panel, alignStart panel */
+/* --- Логотип оператора --- */
+
 #controller-logo-badge {
   order: 2;
-  align-self: flex-start;
-  margin-left: var(--v4-panel-mx);
-  margin-bottom: var(--v4-logo-mb);
-  width: var(--v4-logo-w);
-  height: var(--v4-logo-h);
-  background: var(--v4-panel-bg);
   display: flex;
+  align-self: flex-start;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: var(--v4-logo-w);
+  height: var(--v4-logo-h);
+  margin-left: var(--v4-panel-mx);
+  margin-bottom: var(--v4-logo-mb);
+  background: var(--v4-panel-bg);
 }
 
 #controller-logo-badge img {
@@ -126,27 +141,30 @@
   object-fit: contain;
 }
 
+/* --- Основная панель (seek + мета + действия) --- */
+
 #controller-panel {
   order: 3;
-  margin: 0 var(--v4-panel-mx) var(--v4-panel-mb);
-  background: var(--v4-panel-bg);
   max-height: var(--v4-panel-max-h);
+  margin: 0 var(--v4-panel-mx) var(--v4-panel-mb);
   overflow: hidden;
+  background: var(--v4-panel-bg);
   flex-shrink: 0;
 }
 
 #controller-seek-block {
-  padding-top: 33px;
+  padding-top: 12px;
+  padding-bottom: 4px;
 }
 
 #controller-center-title {
-  text-align: center;
+  overflow: hidden;
+  margin-bottom: 8px;
   color: var(--v4-white);
   font-size: var(--v4-seek-text);
   line-height: 1.2;
-  margin-bottom: 8px;
+  text-align: center;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -157,29 +175,29 @@
 
 .controller-seek-row .seek-time {
   flex: 0 0 var(--v4-seek-min-w);
-  font-size: var(--v4-seek-text);
   color: var(--v4-white);
+  font-size: var(--v4-seek-text);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .controller-seek-row .seek-time:first-child {
-  text-align: left;
   margin-left: var(--v4-seek-margin-start);
+  text-align: left;
 }
 
 .controller-seek-row .seek-time:last-child {
-  text-align: right;
   margin-right: var(--v4-seek-margin-end);
+  text-align: right;
 }
 
 #infobar-progress-info {
-  flex: 1;
   position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
   height: 48px;
   margin: 0 var(--v4-seek-pad);
-  display: flex;
-  align-items: center;
 }
 
 #infobar-program-total {
@@ -187,40 +205,72 @@
   left: 0;
   right: 0;
   height: var(--v4-track-h);
-  border-radius: 4px;
+  border-radius: 2px;
   background: var(--v4-track);
 }
 
 #infobar-program-progress {
   position: absolute;
   left: 0;
-  height: var(--v4-track-h);
-  border-radius: 4px;
-  background: var(--v4-accent);
   width: 0;
+  height: var(--v4-track-h-active);
+  top: 50%;
+  border-radius: 2px;
+  background: var(--v4-accent);
+  transform: translateY(-50%);
+}
+
+#player-screen.is-live #infobar-program-total,
+#player-screen.is-future #infobar-program-total {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+#player-screen.is-live #infobar-program-progress,
+#player-screen.is-future #infobar-program-progress {
+  height: var(--v4-track-h-active);
+  background: var(--v4-progress-live);
+}
+
+#player-screen.is-archive #infobar-program-progress,
+#player-screen.is-paused #infobar-program-progress,
+#player-screen.is-program-info #infobar-program-progress {
+  background: var(--v4-accent);
 }
 
 #infobar-program-pin {
   position: absolute;
   top: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
   width: var(--v4-thumb);
   height: var(--v4-thumb);
-  left: 0;
   padding: 0;
   border: none;
   background: transparent;
   pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  visibility: hidden;
+}
+
+#player-screen.is-archive #infobar-program-pin,
+#player-screen.is-paused #infobar-program-pin,
+#player-screen.is-error #infobar-program-pin,
+#player-screen.is-program-info #infobar-program-pin {
+  opacity: 1;
+  visibility: visible;
 }
 
 #infobar-program-pin img {
+  display: block;
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: contain;
 }
 
+/* --- Канал, программа, тег режима --- */
+
 #controller-meta-row {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -230,20 +280,20 @@
 
 .controller-meta-left {
   display: flex;
+  flex: 1;
   align-items: flex-start;
   gap: var(--v4-text-margin-start);
   min-width: 0;
-  flex: 1;
   margin-top: var(--v4-ch-icon-margin-top);
   margin-left: var(--v4-ch-icon-margin-start);
   text-align: left;
 }
 
 #player-channel-icon {
+  flex-shrink: 0;
   width: var(--v4-ch-icon);
   height: var(--v4-ch-icon);
   object-fit: cover;
-  flex-shrink: 0;
   background: #1a2a3a;
   border-radius: 4px;
 }
@@ -254,59 +304,56 @@
 }
 
 #infobar-channel-name {
+  overflow: hidden;
+  color: var(--v4-white);
   font-size: var(--v4-ch-name);
   line-height: 1.1;
-  color: var(--v4-white);
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 #infobar-program-name {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 8px;
+  color: var(--v4-white);
   font-size: var(--v4-prog-text);
   line-height: 1.25;
-  color: var(--v4-white);
-  margin-top: 8px;
-  display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 #program-tag {
+  margin-top: var(--v4-program-tag-margin-top);
   font-size: var(--v4-prog-text);
   line-height: 1.2;
-  margin-top: var(--v4-program-tag-margin-top);
   opacity: 1;
 }
 
-#program-tag.tag-live {
-  color: #5ad66a;
+#program-tag.tag-live { color: #5ad66a; }
+#program-tag.tag-archive { color: #f5d442; }
+#program-tag.tag-video { color: var(--v4-white); opacity: 0.85; }
+
+#controller-actions.preview-hidden {
+  display: none !important;
 }
 
-#program-tag.tag-archive {
-  color: #f5d442;
-}
-
-#program-tag.tag-video {
-  color: var(--v4-white);
-  opacity: 0.85;
-}
+/* --- Кнопки действий (программа / смотреть / избранное) --- */
 
 #controller-actions {
   display: flex;
-  align-items: center;
-  gap: 10px;
   flex-shrink: 0;
-  pointer-events: auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
   margin-right: var(--v4-actions-margin-end);
-  margin-top: 8px;
+  pointer-events: auto;
 }
 
 #btn-live {
   height: var(--v4-live-h);
-  padding: 0 var(--v4-live-btn-pad-h);
   margin-right: var(--v4-live-btn-margin-end);
+  padding: 0 var(--v4-live-btn-pad-h);
   border: none;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.16);
@@ -334,31 +381,32 @@
   border: var(--v4-focus-stroke) solid transparent;
   border-radius: var(--v4-focus-radius);
   background: transparent;
-  color: var(--v4-accent);
+  color: var(--v4-white);
   cursor: pointer;
   pointer-events: auto;
 }
 
 .focus-switch .focus-switch-icon {
-  width: var(--v4-focus-icon-bg);
-  height: var(--v4-focus-icon-bg);
-  border-radius: 50%;
-  background: var(--v4-icon-bg);
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: var(--v4-focus-icon-bg);
+  height: var(--v4-focus-icon-bg);
+  border-radius: var(--v4-focus-radius);
+  background: var(--v4-icon-bg);
 }
 
 .focus-switch .focus-switch-icon .action-icon {
+  display: block;
   width: var(--v4-focus-icon);
   height: var(--v4-focus-icon);
   object-fit: contain;
-  display: block;
 }
 
 .focus-switch .focus-switch-label {
   display: none;
+  color: var(--v4-white);
   font-size: var(--v4-focus-text);
   white-space: nowrap;
 }
@@ -366,6 +414,7 @@
 .focus-switch.focused,
 .focus-switch.selected {
   border-color: var(--v4-accent);
+  background: rgba(134, 219, 255, 0.08);
 }
 
 .focus-switch.focused .focus-switch-label,
@@ -373,18 +422,30 @@
   display: block;
 }
 
+.focus-switch.selected[data-action="watch"] .focus-switch-icon {
+  display: none;
+}
+
+.focus-switch.selected[data-action="favorite"] .focus-switch-label,
+.focus-switch.selected[data-action="program"] .focus-switch-label,
+.focus-switch.selected[data-action="info"] .focus-switch-label {
+  display: none;
+}
+
 .focus-switch.marked .focus-switch-icon {
   box-shadow: inset 0 0 0 2px var(--v4-accent);
 }
 
+/* --- Футер контроллера --- */
+
 #controller-footer {
   order: 4;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   height: var(--v4-footer-h);
   padding: 0 var(--v4-footer-pad);
   background: var(--v4-footer-bg);
-  flex-shrink: 0;
 }
 
 .footer-hint {
@@ -396,85 +457,81 @@
 }
 
 .footer-hint-icon {
+  display: block;
   width: var(--v4-footer-icon);
   height: var(--v4-footer-icon);
   object-fit: contain;
-  display: block;
 }
 
 #footer-clock {
   margin-left: auto;
-  font-size: var(--v4-clock-text);
   color: var(--v4-white);
+  font-size: var(--v4-clock-text);
   font-variant-numeric: tabular-nums;
 }
 
+/* --- Оверлеи плеера --- */
+
 #player-screen .playing-error-bar {
   top: auto;
-  bottom: 280px;
+  right: 60px;
+  bottom: 300px;
   left: auto;
-  right: 48px;
-  transform: none;
   width: auto;
-  max-width: 560px;
+  max-width: 480px;
   padding: 22px 28px;
-  background: transparent;
   border: 2px solid rgba(255, 255, 255, 0.92);
   border-radius: 0;
+  background: transparent;
   z-index: 20;
-  font-size: 30px;
-  line-height: 1.35;
+  font-size: 28px;
+  line-height: 1.4;
   text-align: left;
   color: var(--v4-white);
+  white-space: normal;
+  word-wrap: break-word;
+  transform: none;
 }
 
 #playing-error-bar-sepg {
   position: absolute;
   left: 50%;
-  top: 42%;
-  transform: translate(-50%, -50%);
+  top: 28%;
   z-index: 25;
   width: auto;
-  max-width: 920px;
-  padding: 28px 44px;
-  background: rgba(0, 0, 0, 0.62);
-  border: none;
-  border-radius: 10px;
-  font-size: 32px;
+  max-width: 720px;
+  padding: 20px 32px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.72);
+  font-size: 28px;
   line-height: 1.35;
   text-align: center;
   color: #fff;
+  white-space: normal;
+  transform: translateX(-50%);
 }
 
 #aspect-bar {
   top: 50%;
-  left: auto;
   right: 48px;
-  transform: translateY(-50%);
+  left: auto;
   width: auto;
   max-width: 800px;
   padding: 32px 48px;
-  background: rgba(0, 0, 0, 0.55);
   border: none;
+  background: rgba(0, 0, 0, 0.55);
   font-size: 32px;
   text-align: left;
+  transform: translateY(-50%);
 }
 
 #loading-bar {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 102px;
-  height: 102px;
 }
 
-#player-screen #tv-infobar,
-#player-screen #tv-fwdbar,
-#player-screen #navigation-panel {
-  display: none !important;
-}
-
-/* toast — APK player message */
 #player-toast {
   position: absolute;
   right: 48px;
@@ -494,24 +551,20 @@
   display: none !important;
 }
 
-/* program description overlay (controller, not sepg screen) */
-#controller-meta-row {
-  position: relative;
-}
-
+/* Описание программы — широкий overlay поверх видео */
 .program-info-overlay {
   position: absolute;
-  right: var(--v4-actions-margin-end);
-  bottom: calc(100% + 12px);
-  width: min(920px, 58vw);
-  max-height: 220px;
-  padding: 20px 24px 20px 20px;
-  background: rgba(0, 0, 0, 0.62);
-  border-radius: 4px;
+  right: 48px;
+  bottom: 380px;
+  left: 360px;
+  z-index: 18;
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  z-index: 3;
+  flex-direction: column;
+  min-height: 160px;
+  max-height: 280px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.62);
   pointer-events: none;
 }
 
@@ -520,15 +573,61 @@
 }
 
 .program-info-accent {
-  flex: 0 0 8px;
-  align-self: stretch;
+  flex: 0 0 4px;
+  width: 100%;
   background: #e53935;
-  border-radius: 2px;
+}
+
+.program-info-inner {
+  position: relative;
+  flex: 1;
+  padding: 28px 32px 24px;
+  overflow: hidden;
+}
+
+.program-info-actions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 2;
+}
+
+.program-info-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--v4-focus-icon-bg);
+  height: var(--v4-focus-icon-bg);
+  padding: 0;
+  border: none;
+  border-radius: var(--v4-focus-radius);
+  background: var(--v4-icon-bg);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.program-info-action .action-icon {
+  display: block;
+  width: var(--v4-focus-icon);
+  height: var(--v4-focus-icon);
+  object-fit: contain;
 }
 
 #program-info-text {
   margin: 0;
-  font-size: 28px;
-  line-height: 1.4;
+  padding-right: 200px;
   color: var(--v4-white);
+  font-size: 26px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+/* Скрытие legacy infobar 3.038 (если попадёт из ядра) */
+#player-screen #tv-infobar,
+#player-screen #tv-fwdbar,
+#player-screen #navigation-panel {
+  display: none !important;
 }

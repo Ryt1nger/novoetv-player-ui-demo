@@ -1,3 +1,7 @@
+/* ==========================================================================
+   CSS-анимации переключения слоёв (только browser preview)
+   ========================================================================== */
+
 html.preview-animated.audit-mode *,
 html.preview-animated.audit-mode *::before,
 html.preview-animated.audit-mode *::after {
@@ -10,14 +14,16 @@ html.preview-animated {
   --preview-duration: 0.26s;
 }
 
+/* --- Затемнение фона --- */
+
 html.preview-animated #preview-dim-overlay {
   transition: opacity 0.32s ease, visibility 0.32s ease;
 }
 
+/* --- Базовые слои сцены --- */
+
 html.preview-animated #mock-video-bg,
-html.preview-animated #player-screen,
-html.preview-animated #sepg-screen,
-html.preview-animated #epg-screen {
+html.preview-animated #player-screen {
   display: block;
   opacity: 0;
   visibility: hidden;
@@ -29,28 +35,14 @@ html.preview-animated #epg-screen {
 }
 
 html.preview-animated #mock-video-bg.preview-active,
-html.preview-animated #player-screen.preview-active,
-html.preview-animated #sepg-screen.preview-active,
-html.preview-animated #epg-screen.preview-active {
+html.preview-animated #player-screen.preview-active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
-html.preview-animated #sepg-screen.preview-active {
-  transform: translateY(0);
-}
+/* --- Анимируемые оверлеи --- */
 
-html.preview-animated #epg-screen {
-  transform: translateY(16px);
-}
-
-html.preview-animated #epg-screen.preview-active {
-  transform: translateY(0);
-}
-
-html.preview-animated #tv-infobar,
-html.preview-animated #tv-fwdbar,
 html.preview-animated #loading-bar,
 html.preview-animated #aspect-bar,
 html.preview-animated #player-controller,
@@ -65,51 +57,55 @@ html.preview-animated #program-info-overlay {
     visibility var(--preview-duration) ease;
 }
 
+/* Контроллер плеера */
 html.preview-animated #player-controller.preview-hidden {
-  opacity: 0;
-  transform: translateY(36px);
   display: block !important;
-  pointer-events: none;
+  opacity: 0;
   visibility: hidden;
+  pointer-events: none;
+  transform: translateY(36px);
 }
 
 html.preview-animated #player-controller:not(.preview-hidden) {
   opacity: 1;
-  transform: translateY(0);
   visibility: visible;
+  transform: translateY(0);
 }
 
+/* Mini-list recycler */
 html.preview-animated #controller-recycler-wrap.preview-hidden {
-  opacity: 0;
-  transform: translateY(20px);
   display: block !important;
-  pointer-events: none;
+  opacity: 0;
   visibility: hidden;
+  pointer-events: none;
+  transform: translateY(20px);
 }
 
 html.preview-animated #controller-recycler-wrap:not(.preview-hidden) {
   opacity: 1;
-  transform: translateY(0);
   visibility: visible;
+  transform: translateY(0);
 }
 
+/* IPTV guide */
 html.preview-animated #iptv-guide.preview-hidden,
 html.preview-animated #iptv-date-screen.preview-hidden {
-  opacity: 0;
-  transform: translateY(12px);
   display: block !important;
-  pointer-events: none;
+  opacity: 0;
   visibility: hidden;
+  pointer-events: none;
+  transform: translateY(12px);
 }
 
 html.preview-animated #iptv-guide:not(.preview-hidden),
 html.preview-animated #iptv-date-screen:not(.preview-hidden) {
   opacity: 1;
-  transform: translateY(0);
   visibility: visible;
   pointer-events: auto;
+  transform: translateY(0);
 }
 
+/* Toast и описание программы */
 html.preview-animated #player-toast.preview-hidden,
 html.preview-animated #program-info-overlay.preview-hidden {
   opacity: 0;
@@ -122,20 +118,7 @@ html.preview-animated #program-info-overlay:not(.preview-hidden) {
   transform: translateX(0);
 }
 
-html.preview-animated #tv-infobar.preview-hidden,
-html.preview-animated #tv-fwdbar.preview-hidden {
-  opacity: 0;
-  transform: translateY(28px);
-  display: block !important;
-  pointer-events: none;
-}
-
-html.preview-animated #tv-infobar:not(.preview-hidden),
-html.preview-animated #tv-fwdbar:not(.preview-hidden) {
-  opacity: 1;
-  transform: translateY(0);
-}
-
+/* Спиннер и aspect pad */
 html.preview-animated #loading-bar.preview-hidden,
 html.preview-animated #aspect-bar.preview-hidden {
   opacity: 0;
@@ -148,21 +131,13 @@ html.preview-animated #aspect-bar:not(.preview-hidden) {
   transform: scale(1);
 }
 
-html.preview-animated #epg-screen ul li,
-html.preview-animated #epg-screen .screen-content .header,
-html.preview-animated #navigation-panel li div {
-  transition:
-    background-color 0.18s ease,
-    color 0.18s ease;
-}
-
+/* Seekbar */
 html.preview-animated #infobar-program-progress,
-html.preview-animated #infobar-program-progress-fwd,
-html.preview-animated #infobar-program-pin,
-html.preview-animated #infobar-program-pin-fwd {
+html.preview-animated #infobar-program-pin {
   transition: width 0.35s var(--preview-ease), left 0.35s var(--preview-ease);
 }
 
+/* Dev-panel */
 html.preview-animated #dev-panel button {
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }

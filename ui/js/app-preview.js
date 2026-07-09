@@ -1,30 +1,31 @@
+/**
+ * AppPreview — оркестратор демо: remote-пульт, debug, моки, audit presets.
+ */
 (function (global) {
   'use strict';
 
+  var dom = global.DomUtils;
+  var byId = dom.byId;
+  var setVisible = dom.setVisible;
+
   var currentScreen = 'player';
-  var currentPlayerState = 'playing';
+  var currentPlayerState = 'live';
   var guideOverlay = false;
-  var playerStateBeforeOverlay = 'playing';
+  var playerStateBeforeOverlay = 'live';
   var mockData = null;
   var layerTimers = {};
+  var infobarVisible = true;
+  var programInfoOpen = false;
 
-  function byId(id) { return document.getElementById(id); }
+  var STATE_ALIASES = {
+    'channel-epg': 'channel-guide',
+    'iptv-guide': 'epg',
+    'iptv-dates': 'iptv-dates'
+  };
 
   function isAnimated() {
     return document.documentElement.classList.contains('preview-animated') &&
       !document.documentElement.classList.contains('audit-mode');
-  }
-
-  function setVisible(id, visible) {
-    var el = byId(id);
-    if (!el) return;
-    if (visible) {
-      el.style.display = '';
-      el.classList.remove('preview-hidden');
-    } else {
-      el.style.display = 'none';
-      el.classList.add('preview-hidden');
-    }
   }
 
   function setLayerActive(id, active) {
@@ -45,6 +46,7 @@
     el.style.display = 'block';
     el.classList.remove('preview-hidden');
     el.classList.toggle('preview-active', active);
+
     if (!active) {
       layerTimers[id] = window.setTimeout(function () {
         layerTimers[id] = null;
@@ -56,34 +58,23 @@
   }
 
   function setInfobarVisible(visible) {
+    infobarVisible = visible !== false;
     if (!isAnimated()) {
-      PlayerUI.showInfobar(visible);
+      PlayerUI.showInfobar(infobarVisible);
       return;
     }
     var ib = byId('player-controller');
     if (!ib) return;
     ib.style.display = 'block';
-    ib.classList.toggle('preview-hidden', !visible);
+    ib.classList.toggle('preview-hidden', !infobarVisible);
   }
 
   function setDimOverlay(screenName) {
     var dim = byId('preview-dim-overlay');
     if (!dim) return;
     dim.classList.remove('preview-active', 'dim-sepg', 'dim-epg');
-    if (screenName === 'sepg') {
-      dim.classList.add('preview-active', 'dim-sepg');
-    } else if (screenName === 'epg') {
-      dim.classList.add('preview-active', 'dim-epg');
-    }
-  }
-
-  function pulseContentShift(listId) {
-    if (!isAnimated()) return;
-    var ul = byId(listId);
-    if (!ul) return;
-    ul.classList.remove('preview-content-shift');
-    void ul.offsetWidth;
-    ul.classList.add('preview-content-shift');
+    if (screenName === 'sepg') dim.classList.add('preview-active', 'dim-sepg');
+    else if (screenName === 'epg') dim.classList.add('preview-active', 'dim-epg');
   }
 
   function setPanelSection(name) {
@@ -95,61 +86,128 @@
     });
   }
 
+  function setActiveButton(selector, activeBtn) {
+    document.querySelectorAll(selector).forEach(function (btn) {
+      btn.classList.toggle('active', btn === activeBtn);
+    });
+  }
+
+  function resetVideoBg() {
+    var stage = byId('tv-stage');
+    if (stage) stage.classList.remove('player-error-bg', 'player-loading-bg');
+  }
+
+  function updateRemoteStatus() {
+    var el = byId('remote-status');
+    if (!el) return;
+    var parts = [currentPlayerState];
+    if (guideOverlay) parts.push('EPG');
+    if (programInfoOpen) parts.push('Info');
+    if (currentScreen === 'sepg' || currentPlayerState === 'mini-list') parts.push('Mini list');
+    var ch = PlayerUI.DEMO_CHANNEL && PlayerUI.DEMO_CHANNEL.name;
+    if (ch) parts.push(ch);
+    el.textContent = parts.join(' · ');
+  }
+
+  function syncScenarioSelect() {
+    var sel = byId('scenario-select');
+    if (!sel) return;
+    var map = { live: 'live', playing: 'live', archive: 'archive', future: 'future', error: 'error', loading: 'loading' };
+    var val = map[currentPlayerState];
+    if (val) sel.value = val;
+  }
+
+  function normalizeState(name) {
+    return STATE_ALIASES[name] || name;
+  }
+
   var PLAYER_STATES = {
-    live: function () { PlayerUI.applyBufferingDemo(); },
-    playing: function () { PlayerUI.applyPlayingDemo(); },
-    paused: function () { PlayerUI.applyPausedDemo(); },
-    loading: function () { PlayerUI.applyRebufferDemo(); },
+    clean: function () {
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyCleanDemo();
+      updateRemoteStatus();
+    },
+    live: function () {
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyLiveDemo();
+      var ids = PlayerUI.getFocusableActions();
+      if (ids.length) PlayerUI.setActionFocus(ids[0]);
+      updateRemoteStatus();
+    },
+    playing: function () { PLAYER_STATES.live(); },
+    future: function () {
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyFutureDemo();
+      PlayerUI.setActionFocus('watch');
+      updateRemoteStatus();
+    },
+    archive: function () {
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyArchiveDemo();
+      updateRemoteStatus();
+    },
+    paused: function () {
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyPausedDemo();
+      updateRemoteStatus();
+    },
+    loading: function () {
+      programInfoOpen = false;
+      PlayerUI.applyLoadingDemo();
+      updateRemoteStatus();
+    },
     error: function () {
+      programInfoOpen = false;
       PlayerUI.showError(PlayerUI.ERROR_MSG_DEFAULT);
-    },
-    vod: function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.setVodMode(true);
-      PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.video);
-    },
-    fwd: function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.setProgress(50, 750, 1500);
+      updateRemoteStatus();
     },
     fav: function () {
-      PlayerUI.applyPlayingDemo();
+      resetVideoBg();
+      PlayerUI.applyLiveDemo();
       PlayerUI.setActionFocus('favorite');
-      PlayerUI.setFavoritesMarked(true);
+      PlayerUI.setFavoritesMarked(true, true);
+      updateRemoteStatus();
     },
     'program-info': function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.setActionFocus('program');
-      PlayerUI.showProgramInfo();
+      resetVideoBg();
+      PlayerUI.applyProgramInfoDemo();
+      programInfoOpen = true;
+      updateRemoteStatus();
     },
     'mini-list': function () {
       guideOverlay = false;
       EpgUI.hide();
-      PlayerUI.applyPlayingDemo();
+      resetVideoBg();
+      programInfoOpen = false;
+      PlayerUI.applyLiveDemo();
       PlayerUI.hideProgramInfo();
       SepgUI.applyDemo();
-      setDimOverlay(null);
+      setDimOverlay('sepg');
+      updateRemoteStatus();
     },
     'channel-guide': function () {
       AppPreview.showGuideOverlay('channel-guide');
     },
-    archive: function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.setArchiveControls();
-      PlayerUI.setChannel({
-        number: '013',
-        name: 'Матч! ТВ HD',
-        icon: PlayerUI.DEMO_CHANNEL_ICON,
-        program_name: 'Смешанные единоборства. Бетсити Fight Nights. Трансляция из Каспийска',
-        has_record: true
-      });
-      PlayerUI.setProgress(72, 6713, 9300);
+    'channel-epg': function () {
+      AppPreview.showGuideOverlay('channel-guide');
     },
-    clean: function () {
-      PlayerUI.applyPlayingDemo();
-      PlayerUI.showInfobar(false);
-      PlayerUI.showError(null);
+    vod: function () {
+      resetVideoBg();
+      PlayerUI.applyLiveDemo();
+      PlayerUI.setVodMode(true);
+      PlayerUI.showAspectPad(PlayerUI.MODE_LABELS.video);
+      updateRemoteStatus();
     },
+    rebuffer: function () {
+      resetVideoBg();
+      PlayerUI.applyRebufferDemo();
+      updateRemoteStatus();
+    }
   };
 
   var SEPG_STATES = {
@@ -160,7 +218,7 @@
       var msg = (mockData && mockData.sepg && mockData.sepg.streamError) ||
         'Ошибка открытия архива. Повторный запрос...';
       SepgUI.applyStreamErrorDemo(msg);
-    },
+    }
   };
 
   var EPG_STATES = {
@@ -173,6 +231,7 @@
 
   var AppPreview = {
     currentScreen: function () { return currentScreen; },
+    currentPlayerState: function () { return currentPlayerState; },
 
     loadMocks: function () {
       return fetch('../../mocks/player-mock.json')
@@ -193,6 +252,7 @@
     showScreen: function (name) {
       guideOverlay = false;
       currentScreen = name;
+
       var showVideo = name === 'player' || name === 'sepg' || name === 'epg';
       var showPlayerLayer = name === 'player' || name === 'sepg';
       var showGuide = name === 'epg';
@@ -213,16 +273,13 @@
         SepgUI.hide();
         EpgUI.hide();
         AppPreview.applyPlayerState(currentPlayerState);
-        if (currentPlayerState !== 'mini-list') {
-          setDimOverlay(null);
-        }
-        if (currentPlayerState !== 'clean') {
-          setInfobarVisible(true);
-        }
+        if (currentPlayerState !== 'mini-list') setDimOverlay(null);
+        if (currentPlayerState !== 'clean') setInfobarVisible(infobarVisible);
       } else if (name === 'sepg') {
         EpgUI.hide();
         PlayerUI.hideProgramInfo();
-        PlayerUI.applyPlayingDemo();
+        resetVideoBg();
+        PlayerUI.applyLiveDemo();
         PlayerUI.hideAspectPad();
         setInfobarVisible(true);
         PlayerUI.showError(null);
@@ -234,14 +291,19 @@
         PlayerUI.hideAspectPad();
         EpgUI.applyDemo();
       }
+      updateRemoteStatus();
     },
 
     showGuideOverlay: function (epgState) {
       if (!guideOverlay) {
-        playerStateBeforeOverlay = currentPlayerState === 'channel-guide' ? 'archive' : currentPlayerState;
+        playerStateBeforeOverlay = currentPlayerState === 'channel-guide'
+          ? 'archive'
+          : currentPlayerState;
       }
       guideOverlay = true;
       currentScreen = 'player';
+      programInfoOpen = false;
+
       setLayerActive('mock-video-bg', true);
       setLayerActive('player-screen', true);
       setDimOverlay('epg');
@@ -254,11 +316,10 @@
       setVisible('iptv-date-screen', false);
       setVisible('iptv-guide', true);
       setPanelSection('player');
-      if (epgState === 'channel-guide') {
-        EpgUI.applyChannelGuideDemo();
-      } else {
-        EpgUI.applyDemo();
-      }
+
+      if (epgState === 'channel-guide') EpgUI.applyChannelGuideDemo();
+      else EpgUI.applyDemo();
+      updateRemoteStatus();
     },
 
     closeGuideOverlay: function () {
@@ -267,21 +328,39 @@
       EpgUI.hide();
       setDimOverlay(null);
       setVisible('iptv-guide', false);
+      setVisible('iptv-date-screen', false);
+
       currentPlayerState = playerStateBeforeOverlay;
       PLAYER_STATES[playerStateBeforeOverlay]();
+
       if (playerStateBeforeOverlay !== 'clean' && playerStateBeforeOverlay !== 'mini-list') {
-        setInfobarVisible(true);
+        setInfobarVisible(infobarVisible);
       }
+      updateRemoteStatus();
     },
 
     applyPlayerState: function (stateName) {
+      stateName = normalizeState(stateName);
+      if (stateName === 'iptv-dates') {
+        AppPreview.showScreen('epg');
+        EpgUI.showDateScreen();
+        return;
+      }
+      if (stateName === 'epg' || stateName === 'iptv-guide') {
+        AppPreview.showScreen('epg');
+        return;
+      }
       if (!PLAYER_STATES[stateName]) return;
+
       if (currentPlayerState === 'mini-list' && stateName !== 'mini-list') {
         SepgUI.hide();
         if (!guideOverlay) setDimOverlay(null);
       }
+
+      currentScreen = 'player';
       currentPlayerState = stateName;
       PLAYER_STATES[stateName]();
+      syncScenarioSelect();
     },
 
     applySepgState: function (stateName) {
@@ -292,43 +371,193 @@
       if (EPG_STATES[stateName]) EPG_STATES[stateName]();
     },
 
-    setPlayerNav: function (index) {
-      PlayerUI.setNavSelected(index);
-    },
-
     setActionFocus: function (actionId) {
       PlayerUI.setActionFocus(actionId);
-    },
-
-    setEpgFocus: function (column) {
-      EpgUI.setFocusedColumn(column);
-    },
-
-    epgShift: function (delta) {
-      EpgUI.shiftSelection(delta);
-    },
-
-    sepgShift: function (dir) {
-      if (dir < 0) SepgUI.shiftLeft();
-      else SepgUI.shiftRight();
+      updateRemoteStatus();
     },
 
     setProgress: function (percent) {
-      var dur = 1500;
-      PlayerUI.setProgress(percent, Math.floor(dur * percent / 100), dur);
+      var mock = mockData && mockData.playerLive;
+      var duration = (mock && mock.duration) || '59:30';
+      var durationSec = (mock && mock.durationSec) || 3570;
+      var currentSec = Math.floor(durationSec * percent / 100);
+      PlayerUI.setProgress(percent, formatProgressTime(currentSec), duration);
     },
 
     fitPreviewScale: function () {
-      var devH = document.documentElement.classList.contains('audit-mode') ? 0 : 96;
-      var scale = Math.min(window.innerWidth / 1920, (window.innerHeight - devH) / 1080);
+      var scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
       document.documentElement.style.setProperty('--preview-scale', String(scale));
     },
 
-    initDevPanel: function () {
-      var panel = byId('dev-panel');
+    /* --- Remote control --- */
+
+    remoteBack: function () {
+      if (guideOverlay) {
+        if (EpgUI.isDateScreenOpen && EpgUI.isDateScreenOpen()) {
+          EpgUI.hideDateScreen();
+          updateRemoteStatus();
+          return;
+        }
+        AppPreview.closeGuideOverlay();
+        return;
+      }
+      if (programInfoOpen) {
+        programInfoOpen = false;
+        PlayerUI.hideProgramInfo();
+        setPlayerModeFromState(currentPlayerState);
+        updateRemoteStatus();
+        return;
+      }
+      if (currentPlayerState === 'mini-list') {
+        SepgUI.hide();
+        setDimOverlay(null);
+        currentPlayerState = 'live';
+        PLAYER_STATES.live();
+        return;
+      }
+      if (currentScreen !== 'player') {
+        AppPreview.showScreen('player');
+      }
+    },
+
+    remoteGuide: function () {
+      AppPreview.showScreen('player');
+      AppPreview.showGuideOverlay('channel-guide');
+    },
+
+    remoteInfo: function () {
+      AppPreview.showScreen('player');
+      AppPreview.applyPlayerState('program-info');
+    },
+
+    remotePlayPause: function () {
+      if (guideOverlay || currentPlayerState === 'error' || currentPlayerState === 'loading') return;
+      PlayerUI.togglePause();
+      if (PlayerUI.isPaused()) currentPlayerState = 'paused';
+      else if (currentPlayerState === 'paused') currentPlayerState = 'archive';
+      updateRemoteStatus();
+    },
+
+    remoteLive: function () {
+      AppPreview.applyPlayerState('live');
+      setInfobarVisible(true);
+    },
+
+    remoteFav: function () {
+      var btn = document.querySelector('.focus-switch[data-action="favorite"]');
+      var isMarked = btn && btn.classList.contains('marked');
+      PlayerUI.setFavoritesMarked(!isMarked);
+      PlayerUI.setActionFocus('favorite');
+      updateRemoteStatus();
+    },
+
+    remoteWatch: function () {
+      var btn = document.querySelector('.focus-switch[data-action="watch"]');
+      var isMarked = btn && btn.classList.contains('marked');
+      PlayerUI.setWatchMarked(!isMarked);
+      PlayerUI.setActionFocus('watch');
+    },
+
+    remoteToggleUi: function () {
+      if (currentPlayerState === 'clean') {
+        setInfobarVisible(true);
+        AppPreview.applyPlayerState('live');
+        return;
+      }
+      if (infobarVisible) {
+        setInfobarVisible(false);
+        var btn = byId('remote-toggle-ui') || document.querySelector('[data-remote="toggle-ui"]');
+        if (btn) btn.textContent = 'Show UI';
+      } else {
+        setInfobarVisible(true);
+        var showBtn = document.querySelector('[data-remote="toggle-ui"]');
+        if (showBtn) showBtn.textContent = 'Hide UI';
+      }
+    },
+
+    remoteOk: function () {
+      if (guideOverlay) {
+        EpgUI.activateFocused && EpgUI.activateFocused();
+        return;
+      }
+      if (currentPlayerState === 'mini-list' || currentScreen === 'sepg') {
+        return;
+      }
+      var action = PlayerUI.activateFocusedAction();
+      if (!action) {
+        var ids = PlayerUI.getFocusableActions();
+        if (ids.length) {
+          PlayerUI.setActionFocus(ids[0]);
+          action = ids[0];
+        }
+      }
+      if (action === 'program') AppPreview.remoteGuide();
+      else if (action === 'info') AppPreview.remoteInfo();
+      else if (action === 'favorite') AppPreview.remoteFav();
+      else if (action === 'watch') AppPreview.remoteWatch();
+      else if (action === 'live') AppPreview.remoteLive();
+    },
+
+    remoteArrow: function (dir) {
+      if (guideOverlay) {
+        if (dir === 'up') EpgUI.shiftSelection(-1);
+        else if (dir === 'down') EpgUI.shiftSelection(1);
+        else if (dir === 'left') EpgUI.showDateScreen();
+        else if (dir === 'right') EpgUI.hideDateScreen();
+        return;
+      }
+      if (currentPlayerState === 'mini-list' || currentScreen === 'sepg') {
+        if (dir === 'up') SepgUI.shiftLeft();
+        else if (dir === 'down') SepgUI.shiftRight();
+        return;
+      }
+      if (dir === 'left') PlayerUI.shiftActionFocus(-1);
+      else if (dir === 'right') PlayerUI.shiftActionFocus(1);
+      updateRemoteStatus();
+    },
+
+    handleRemote: function (action) {
+      switch (action) {
+        case 'up': AppPreview.remoteArrow('up'); break;
+        case 'down': AppPreview.remoteArrow('down'); break;
+        case 'left': AppPreview.remoteArrow('left'); break;
+        case 'right': AppPreview.remoteArrow('right'); break;
+        case 'ok': AppPreview.remoteOk(); break;
+        case 'back': AppPreview.remoteBack(); break;
+        case 'guide': AppPreview.remoteGuide(); break;
+        case 'info': AppPreview.remoteInfo(); break;
+        case 'playpause': AppPreview.remotePlayPause(); break;
+        case 'live': AppPreview.remoteLive(); break;
+        case 'fav': AppPreview.remoteFav(); break;
+        case 'watch': AppPreview.remoteWatch(); break;
+        case 'toggle-ui': AppPreview.remoteToggleUi(); break;
+      }
+    },
+
+    initRemotePanel: function () {
+      var panel = byId('remote-panel');
       if (!panel) return;
 
       panel.addEventListener('click', function (e) {
+        var remoteBtn = e.target.closest('[data-remote]');
+        if (remoteBtn) {
+          AppPreview.handleRemote(remoteBtn.getAttribute('data-remote'));
+          return;
+        }
+
+        if (e.target.id === 'remote-toggle-debug') {
+          var dbg = byId('debug-panel');
+          if (dbg) dbg.classList.toggle('preview-hidden');
+          e.target.classList.toggle('active');
+          return;
+        }
+
+        if (e.target.id === 'remote-collapse') {
+          panel.classList.toggle('is-collapsed');
+          e.target.textContent = panel.classList.contains('is-collapsed') ? '+' : '−';
+          return;
+        }
+
         var tab = e.target.closest('[data-screen-tab]');
         if (tab) {
           AppPreview.showScreen(tab.getAttribute('data-screen-tab'));
@@ -338,76 +567,37 @@
         var playerState = e.target.closest('[data-player-state]');
         if (playerState) {
           AppPreview.applyPlayerState(playerState.getAttribute('data-player-state'));
-          panel.querySelectorAll('[data-player-state]').forEach(function (b) {
-            b.classList.toggle('active', b === playerState);
-          });
+          setActiveButton('[data-player-state]', playerState);
           return;
         }
 
         var sepgState = e.target.closest('[data-sepg-state]');
         if (sepgState) {
           AppPreview.applySepgState(sepgState.getAttribute('data-sepg-state'));
-          panel.querySelectorAll('[data-sepg-state]').forEach(function (b) {
-            b.classList.toggle('active', b === sepgState);
-          });
           return;
         }
 
         var epgState = e.target.closest('[data-epg-state]');
         if (epgState) {
           AppPreview.applyEpgState(epgState.getAttribute('data-epg-state'));
-          panel.querySelectorAll('[data-epg-state]').forEach(function (b) {
-            b.classList.toggle('active', b === epgState);
-          });
           return;
         }
 
-        var actionFocus = e.target.closest('[data-action-focus]');
-        if (actionFocus) {
-          var actionId = actionFocus.getAttribute('data-action-focus');
-          AppPreview.setActionFocus(actionId);
-          if (actionId === 'program') {
-          AppPreview.showScreen('player');
-          if (currentPlayerState === 'archive') {
-            AppPreview.showGuideOverlay('channel-guide');
-          } else {
-            PlayerUI.showProgramInfo();
-          }
-          panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
-            b.classList.toggle('active', b === actionFocus);
-          });
-          return;
-        }
-          panel.querySelectorAll('[data-action-focus]').forEach(function (b) {
-            b.classList.toggle('active', b === actionFocus);
-          });
-          return;
+        if (e.target.closest('[data-action="iptv-dates"]')) {
+          AppPreview.applyPlayerState('iptv-dates');
         }
 
-        var navBtn = e.target.closest('[data-nav-index]');
-        if (navBtn) {
-          AppPreview.setPlayerNav(parseInt(navBtn.getAttribute('data-nav-index'), 10));
-          return;
-        }
-
-        var epgFocus = e.target.closest('[data-epg-focus]');
-        if (epgFocus) {
-          AppPreview.setEpgFocus(epgFocus.getAttribute('data-epg-focus'));
-          panel.querySelectorAll('[data-epg-focus]').forEach(function (b) {
-            b.classList.toggle('active', b === epgFocus);
-          });
-          return;
-        }
-
-        if (e.target.closest('[data-action="epg-up"]')) AppPreview.epgShift(-1);
-        if (e.target.closest('[data-action="epg-down"]')) AppPreview.epgShift(1);
-        if (e.target.closest('[data-action="epg-left"]')) EpgUI.showDateScreen();
-        if (e.target.closest('[data-action="epg-right"]')) EpgUI.hideDateScreen();
-        if (e.target.closest('[data-action="sepg-left"]')) AppPreview.sepgShift(-1);
-        if (e.target.closest('[data-action="sepg-right"]')) AppPreview.sepgShift(1);
         if (e.target.id === 'iptv-date-back') EpgUI.hideDateScreen();
         if (e.target.closest('#iptv-inline-back')) AppPreview.closeGuideOverlay();
       });
+
+      var scenario = byId('scenario-select');
+      if (scenario) {
+        scenario.addEventListener('change', function () {
+          AppPreview.showScreen('player');
+          AppPreview.applyPlayerState(scenario.value);
+        });
+      }
 
       var slider = byId('progress-slider');
       if (slider) {
@@ -415,21 +605,73 @@
           AppPreview.setProgress(parseInt(ev.target.value, 10));
         });
       }
+
+      document.addEventListener('keydown', function (e) {
+        if (document.documentElement.classList.contains('audit-mode')) return;
+        var map = {
+          ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+          Enter: 'ok', Escape: 'back', Backspace: 'back'
+        };
+        if (map[e.key]) {
+          e.preventDefault();
+          AppPreview.handleRemote(map[e.key]);
+        }
+      });
+    },
+
+    initFromQuery: function () {
+      var params = new URLSearchParams(location.search);
+      var screen = params.get('screen') || 'player';
+      var state = params.get('state');
+
+      if (state) {
+        state = normalizeState(state);
+        if (state === 'epg' || state === 'iptv-guide') {
+          AppPreview.showScreen('epg');
+        } else if (state === 'iptv-dates') {
+          AppPreview.showScreen('epg');
+          EpgUI.showDateScreen();
+        } else if (state === 'mini-list') {
+          AppPreview.showScreen('player');
+          AppPreview.applyPlayerState('mini-list');
+        } else if (state === 'channel-epg' || state === 'channel-guide') {
+          AppPreview.showScreen('player');
+          AppPreview.applyPlayerState('channel-guide');
+        } else {
+          AppPreview.showScreen(screen);
+          AppPreview.applyPlayerState(state);
+        }
+      } else {
+        AppPreview.showScreen(screen);
+        if (screen === 'player') AppPreview.applyPlayerState('live');
+      }
     },
 
     init: function () {
       AppPreview.fitPreviewScale();
       window.addEventListener('resize', AppPreview.fitPreviewScale);
-      AppPreview.initDevPanel();
+      AppPreview.initRemotePanel();
+
       return AppPreview.loadMocks().then(function () {
-        var params = new URLSearchParams(location.search);
-        var screen = params.get('screen') || 'player';
-        AppPreview.showScreen(screen);
+        AppPreview.initFromQuery();
         var slider = byId('progress-slider');
-        if (slider) slider.value = 0;
+        if (slider) slider.value = 31;
       });
     }
   };
+
+  function setPlayerModeFromState(state) {
+    if (state === 'archive') PlayerUI.applyArchiveDemo();
+    else if (state === 'future') PlayerUI.applyFutureDemo();
+    else PlayerUI.applyLiveDemo();
+  }
+
+  function formatProgressTime(seconds) {
+    seconds = parseInt(seconds, 10) || 0;
+    var m = Math.floor(seconds / 60);
+    var s = seconds % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
 
   global.AppPreview = AppPreview;
 })(typeof window !== 'undefined' ? window : this);

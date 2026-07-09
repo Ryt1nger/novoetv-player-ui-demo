@@ -1,9 +1,34 @@
+/* ==========================================================================
+   Базовые стили Samsung widget (общие для всех экранов)
+   ========================================================================== */
+
 @font-face {
   font-family: 'mvideo';
   src: url('mvideo.ttf') format('truetype');
 }
 
-* { box-sizing: border-box; }
+/* --- Сброс и типографика --- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: #fff;
+  font-size: 40px;
+  font-family: 'mvideo', Verdana, Tahoma, sans-serif;
+  background-color: #000;
+  user-select: none;
+}
+
+img {
+  pointer-events: none;
+}
+
+/* --- Масштабирование под окно браузера --- */
 
 html.browser-preview,
 html.browser-preview body {
@@ -12,30 +37,9 @@ html.browser-preview body {
   overflow: hidden;
 }
 
-body {
-  color: white;
-  font-size: 40px;
-  overflow: hidden;
-  background-color: #000;
-  margin: 0;
-  padding: 0;
-  font-family: 'mvideo', Verdana, Tahoma, sans-serif;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-html.browser-preview body {
-  width: 100%;
-  height: 100%;
-}
-
 html.browser-preview #tv-viewport {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 96px;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,136 +47,64 @@ html.browser-preview #tv-viewport {
 }
 
 html.browser-preview #tv-stage {
+  position: relative;
+  flex-shrink: 0;
   width: 1920px;
   height: 1080px;
   transform: scale(var(--preview-scale, 1));
   transform-origin: center center;
-  flex-shrink: 0;
-  position: relative;
   background: #000;
 }
 
-img { pointer-events: none; }
+/* --- Экран 1920×1080 --- */
 
-.screen {
+#tv-stage {
+  position: relative;
   width: 1920px;
   height: 1080px;
-  padding: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.screen {
   position: absolute;
   top: 0;
   left: 0;
-  text-align: center;
   z-index: 10;
-}
-
-#tv-stage {
   width: 1920px;
   height: 1080px;
-  position: relative;
-  background: #000;
-  overflow: hidden;
-}
-
-.screen .screen-header {
-  width: calc(100% - 160px);
-  height: 100px;
-  line-height: 100px;
-  background-color: rgba(5, 26, 49, 1);
-  border-radius: 10px;
-  margin: 80px 80px 20px;
-}
-
-.screen .screen-header .header-logo {
-  float: left;
-  margin-left: 40px;
-  padding-top: 5px;
-}
-
-.screen .screen-header .header-logo img { height: 37px; }
-
-.screen .screen-header .header-date {
-  float: right;
-  margin-right: 10px;
-  white-space: nowrap;
-}
-
-.screen .screen-header .header-time {
-  float: right;
-  margin-right: 30px;
-  white-space: nowrap;
-}
-
-.screen .screen-content {
-  clear: left;
-  text-align: left;
-  margin: 0 80px;
-}
-
-.screen .screen-content .list {
-  background-color: rgba(5, 26, 49, 1);
-  border-radius: 10px;
-  position: relative;
-}
-
-.screen .screen-content .header {
-  background-color: rgba(22, 22, 22, 1);
-  border-radius: 10px;
-  color: #18bbcc;
-  margin-bottom: 20px;
-}
-
-.screen ul {
-  list-style: none;
   padding: 0;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.screen ul li {
-  margin: 0 auto;
-  border-radius: 10px;
-  padding-left: 20px;
-}
-
-.screen .data-loading {
-  width: 100%;
-  height: 100%;
   text-align: center;
 }
 
-.screen .data-loading img {
-  margin-top: 100px;
-  width: 30px;
+#player-screen {
+  background: transparent;
 }
 
-.screen .no-content {
-  padding-left: 20px;
-  padding-top: 20px;
-  font-size: 30px;
-}
+/* --- Общие UI-паттерны widget --- */
 
 .screen_pad {
   position: absolute;
+  z-index: 110;
+  height: 94px;
+  line-height: 100px;
+  text-align: center;
   background-color: rgba(5, 26, 49, 1);
   border: solid 3px #3e4555;
   border-radius: 10px;
-  text-align: center;
-  height: 94px;
-  line-height: 100px;
-  z-index: 110;
 }
 
 .screen .playing-error-bar {
   top: 45%;
   left: 300px;
+  z-index: 200;
   width: 1320px;
-  line-height: normal;
   height: auto;
   padding: 20px;
-  z-index: 200;
-  white-space: nowrap;
   overflow: hidden;
   font-size: 32px;
+  line-height: normal;
+  white-space: normal;
 }
 
 #loading-bar {
@@ -180,22 +112,10 @@ img { pointer-events: none; }
   z-index: 100;
   width: 102px;
   height: 102px;
-  left: 909px;
-  top: 489px;
   text-align: center;
 }
 
-#aspect-bar { top: 80px; left: 1400px; width: 440px; }
-
-#player-screen {
-  background: transparent;
+/* Скрытие слоя (используется JS и preview-animations) */
+.preview-hidden {
+  display: none !important;
 }
-
-#player-screen #tv-fwdbar {
-  display: none;
-}
-
-#player-screen.show-fwd #tv-infobar { display: none !important; }
-#player-screen.show-fwd #tv-fwdbar { display: block; }
-
-.preview-hidden { display: none !important; }
