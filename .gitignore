@@ -1,18 +1,2 @@
 node_modules/
 .DS_Store
-
-# Generated / local audit output
-screenshots/audit-all/
-screenshots/audit-v4/
-screenshots/audit-epg/
-screenshots/audit-sepg/
-screenshots/scan-reports/
-screenshots/diff-mae/
-screenshots/reference/
-screenshots/audit/
-screenshots/*.png
-
-# APK analysis shots (keep emu-scan for CI)
-screenshots/apk-4.000/*
-!screenshots/apk-4.000/emu-scan/
-!screenshots/apk-4.000/README.md

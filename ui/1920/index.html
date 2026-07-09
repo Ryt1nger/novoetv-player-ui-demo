@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=1920">
   <title>NovoeTV Player UI</title>
   <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/player.css">
   <link rel="stylesheet" href="css/v4-tokens.css">
   <link rel="stylesheet" href="css/player-v4.css">
   <link rel="stylesheet" href="css/iptv-v4.css">
@@ -18,7 +17,7 @@
       background: #000 url('../../assets/img/back.jpg') center/cover no-repeat;
     }
     html.audit-mode #mock-video-bg {
-      /* per-shot emu frame set in audit-all.mjs */
+      background-image: none;
     }
     #preview-dim-overlay {
       position: absolute;
@@ -180,7 +179,7 @@
         <ul id="iptv-program-list"></ul>
       </section>
       <aside class="iptv-detail-pane preview-hidden">
-        <img id="iptv-detail-poster" src="../../mocks/channel-poster-ntv.png" alt="">
+        <img id="iptv-detail-poster" src="../../mocks/program-poster-fight-nights.svg" alt="">
         <div class="iptv-detail-actions">
           <button type="button" id="iptv-detail-stream">Смотреть</button>
           <button type="button" class="focus-switch" id="iptv-detail-watch" data-action="watch">
